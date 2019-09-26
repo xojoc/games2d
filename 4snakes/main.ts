@@ -1,5 +1,6 @@
-// find better sounds
-// games2d on github
+//// copyright: AGPLv3 or later
+
+// todo: find better sounds
 
 const ScreenWidth = 450
 const ScreenHeight = 375
