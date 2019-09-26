@@ -1,0 +1,13 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "strictPropertyInitialization": false,
+    "module": "es6",
+    "target": "es6",
+    "outDir": "dist",
+    "rootDir": "./",
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true
+  }
+}
