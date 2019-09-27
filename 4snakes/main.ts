@@ -1,6 +1,8 @@
 //// copyright: AGPLv3 or later
 
 // todo: find better sounds
+// todo: webapp manifesto ( https://developer.mozilla.org/en-US/docs/Web/Manifest )
+// todo: fullscreen chrome not working. Here's a working example https://labs.phaser.io/edit.html?src=src/scalemanager/full%20screen%20game.js&v=3.19.0
 
 const ScreenWidth = 450
 const ScreenHeight = 375
@@ -10,6 +12,7 @@ class Game extends Phaser.Game {
     constructor() {
         const config: Phaser.Types.Core.GameConfig = {
             title: "4snakes - games2d",
+            parent: "content",
             width: ScreenWidth,
             height: ScreenHeight,
             scene: [Preloader, GameScene],

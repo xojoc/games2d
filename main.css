@@ -1,0 +1,33 @@
+body {
+  margin: 30px;
+}
+
+.games {
+  display: grid;
+  grid-template-columns: 30% 30% 30%;
+  grid-gap: 10px;
+  background-color: #fff;
+  color: #444;
+}
+
+
+.game {
+  background-color: #444;
+  color: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  font-size: 150%;
+  text-align: center;
+}
+
+.game a {
+/*	text-decoration: none; */
+}
+
+.game a:link {
+	color: #fff;
+}
+
+.game a:visited {
+	color: #fff;
+}

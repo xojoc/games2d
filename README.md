@@ -12,4 +12,4 @@ You can play the games [directly from my website](https://xojoc.pw/games2d).
 
 # License
 
-[AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html) or later
+[AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html) or later.
