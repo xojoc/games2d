@@ -1,10 +1,20 @@
 body {
-  margin: 30px;
+    font-size: 24px;
+}
+#games2d {
+	  margin: 30px;
+}
+
+#header a {
+    color: green;
 }
 
 .games {
   display: grid;
-  grid-template-columns: 30% 30% 30%;
+  /*  grid-template-columns: 30% 30% 30%; */
+  /*   grid-auto-flow: column dense; */
+  
+  grid-auto-rows: auto;
   grid-gap: 10px;
   background-color: #fff;
   color: #444;
@@ -21,7 +31,8 @@ body {
 }
 
 .game a {
-/*	text-decoration: none; */
+	text-decoration: underline;
+	font-weight: bold;
 }
 
 .game a:link {
@@ -30,4 +41,14 @@ body {
 
 .game a:visited {
 	color: #fff;
+}
+
+
+#header a {
+    color: green;
+}
+
+a {
+    text-decoration: none;
+    color: #2A5DB0;
 }
