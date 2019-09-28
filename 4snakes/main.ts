@@ -1,8 +1,7 @@
 //// copyright: AGPLv3 or later
 
 // todo: find better sounds
-// todo: webapp manifesto ( https://developer.mozilla.org/en-US/docs/Web/Manifest )
-// todo: fullscreen chrome not working. Here's a working example https://labs.phaser.io/edit.html?src=src/scalemanager/full%20screen%20game.js&v=3.19.0
+
 
 const ScreenWidth = 450
 const ScreenHeight = 375
@@ -22,7 +21,8 @@ class Game extends Phaser.Game {
             },
             scale: {
                 autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
-                mode: Phaser.Scale.FIT
+                mode: Phaser.Scale.FIT,
+                fullscreenTarget: "content",
             },
             type: Phaser.CANVAS,
         }
@@ -659,7 +659,7 @@ class GameScene extends Phaser.Scene {
             .setAlpha(0.5)
             .setOrigin(0, 0)
             .setVisible(!this.scale.isFullscreen)
-        this.fullscreen_on_sprite.on('pointerdown', function() {
+        this.fullscreen_on_sprite.on('pointerup', function() {
             this.scene.toggle_fullscreen()
         })
 
@@ -670,7 +670,7 @@ class GameScene extends Phaser.Scene {
             .setAlpha(0.5)
             .setOrigin(0, 0)
             .setVisible(this.scale.isFullscreen)
-        this.fullscreen_off_sprite.on('pointerdown', function() {
+        this.fullscreen_off_sprite.on('pointerup', function() {
             this.scene.toggle_fullscreen()
         })
 
@@ -782,7 +782,9 @@ Press:
     update_frame() {
         if (this.state == GameState.FirstScreen ||
             this.state == GameState.GameOver) {
-            if (this.cursors.left.isDown ||
+            if (this.a_key.isDown ||
+                this.d_key.isDown ||
+                this.cursors.left.isDown ||
                 this.cursors.right.isDown ||
                 (this.input.activePointer.isDown &&
                     this.input.activePointer.y > 70)) {

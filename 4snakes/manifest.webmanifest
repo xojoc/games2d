@@ -5,5 +5,12 @@
   "display": "fullscreen",
   "background_color": "#000",
   "description": "Snake game, but with 4 snakes",
-  "categories": "games"
+  "categories": "games",
+  "icons": [
+    {
+      "src": "assets/4snakes_icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
 }
