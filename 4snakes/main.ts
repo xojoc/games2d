@@ -478,6 +478,7 @@ class GameScene extends Phaser.Scene {
     d_key: Phaser.Input.Keyboard.Key
     instructions_text: Phaser.GameObjects.Text;
     mute: boolean;
+    game_over_timestamp: number;
 
     constructor() {
         super('GameScene')
@@ -747,6 +748,7 @@ Press:
     }
 
     game_over(snake_number: number) {
+        this.game_over_timestamp = Date.now()
         this.game_over_text.setVisible(true)
         this.state = GameState.GameOver
         if (!this.mute) {
@@ -788,8 +790,8 @@ Press:
                 this.cursors.right.isDown ||
                 (this.input.activePointer.isDown &&
                     this.input.activePointer.y > 70)) {
-
-                if (this.state == GameState.GameOver) {
+                if (this.state == GameState.GameOver &&
+                    ((Date.now() - this.game_over_timestamp) > 500)) {
                     this.scene.restart()
                 }
                 if (this.state == GameState.FirstScreen) {
@@ -827,5 +829,8 @@ Press:
 }
 
 window.onload = () => {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('../service_worker.js?game_name=4snakes')
+    }
     var game = new Game()
 }
