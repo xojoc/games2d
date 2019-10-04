@@ -85,6 +85,8 @@ class Snake extends Phaser.GameObjects.Graphics {
     count_frames_after_input: number;
     first_idle_change_of_direction: boolean;
     render_frame: number;
+    tongue_cell: Phaser.Geom.Rectangle;
+    tongue: Phaser.GameObjects.Rectangle;
     constructor(config: SnakeConfig) {
         super(config.game_scene, {})
         config.game_scene.add.existing(this)
@@ -106,11 +108,14 @@ class Snake extends Phaser.GameObjects.Graphics {
         }
         this.depth = 500
         this.render_frame = 0
+        this.tongue = this.config.game_scene.add.rectangle(0, 0, 4, 5)
+        this.tongue.setFillStyle(0xff1144)
+        this.tongue_cell = new Rt(0, 0, this.tongue.width, this.tongue.height)
     }
     grow_only() {
         let dtx = this.velocity.x * Math.cos(this.snake_angle)
         let dty = this.velocity.y * Math.sin(this.snake_angle)
-        var new_cell = new Rt(this.tail[0].x + dtx,
+        let new_cell = new Rt(this.tail[0].x + dtx,
             this.tail[0].y + dty,
             10, 10)
 
@@ -178,13 +183,20 @@ class Snake extends Phaser.GameObjects.Graphics {
             this.velocity.y * Math.sin(this.snake_angle))
     }
     move(dtx: number, dty: number) {
-        var new_cell = new Rt(this.tail[0].x + dtx,
+        let new_cell = new Rt(this.tail[0].x + dtx,
             this.tail[0].y + dty,
             2, 2)
         new_cell.x += ScreenWidth
         new_cell.x %= ScreenWidth
         new_cell.y += ScreenHeight
         new_cell.y %= ScreenHeight
+
+        this.tongue_cell.x = new_cell.x + 1.3 * Math.cos(this.snake_angle)
+        this.tongue_cell.y = new_cell.y + 1.3 * Math.sin(this.snake_angle)
+        this.tongue_cell.x += ScreenWidth
+        this.tongue_cell.x %= ScreenWidth
+        this.tongue_cell.y += ScreenHeight
+        this.tongue_cell.y %= ScreenHeight
 
         for (let snake of this.config.game_scene.snakes.snakes) {
             let start_idx = 0
@@ -227,23 +239,29 @@ class Snake extends Phaser.GameObjects.Graphics {
             return
         }
 
-        this.lineStyle(10, snakeFoodColors[this.config.num])
+        let snake_width = 10
+
+
+        this.lineStyle(snake_width, snakeFoodColors[this.config.num])
         this.beginPath()
 
         let prev_cell = new Rt(Infinity, Infinity, 0, 0)
 
-        for (var cell of this.tail) {
+        for (let cell of this.tail) {
             if ((Math.abs(cell.x - prev_cell.x) > ScreenWidth / 2) ||
                 (Math.abs(cell.y - prev_cell.y) > ScreenHeight / 2)) {
 
-                this.moveTo(cell.x + cell.width / 2,
-                    cell.y + cell.height / 2)
+                this.moveTo(cell.x + cell.width / 2, cell.y + cell.height / 2)
+
             }
 
             this.lineTo(cell.x + cell.width / 2, cell.y + cell.height / 2)
             prev_cell = cell
         }
         this.strokePath()
+
+        this.tongue.setPosition(this.tongue_cell.x + 1, this.tongue_cell.y)
+        this.tongue.setRotation(this.snake_angle)
     }
 }
 
@@ -305,25 +323,25 @@ class Snakes extends Phaser.GameObjects.Graphics {
         this.setActiveSnake(Phaser.Math.RND.pick(this.snakes).config.num)
     }
     setActiveSnake(num: number) {
-        for (var snake of this.snakes) {
+        for (let snake of this.snakes) {
             snake.snake_is_active = false
         }
         this.snakes[num].snake_is_active = true
     }
     update() {
-        for (var snake of this.snakes) {
+        for (let snake of this.snakes) {
             snake.update()
         }
     }
     render() {
-        for (var snake of this.snakes) {
+        for (let snake of this.snakes) {
             snake.render()
         }
     }
 }
 
 function rectangleCollidesWithAny(rt: Phaser.Geom.Rectangle, list: Phaser.Geom.Rectangle[]): boolean {
-    for (var rect of list) {
+    for (let rect of list) {
         if (Rt.Overlaps(rt, rect)) {
             return true
         }
@@ -361,21 +379,21 @@ class Food extends Phaser.GameObjects.Graphics {
         this.life -= 1
     }
     random_rectangle(): Phaser.Geom.Rectangle {
-        var food_width = 13
-        var food_height = 13
+        let food_width = 13
+        let food_height = 13
         while (true) {
-            var rt = new Rt(Phaser.Math.RND.between(0, ScreenWidth - food_width),
+            let rt = new Rt(Phaser.Math.RND.between(0, ScreenWidth - food_width),
                 Phaser.Math.RND.between(0, ScreenHeight - food_height), food_width, food_height)
 
-            var rt_collides = false
-            for (var food of this.game_scene.foods.foods) {
+            let rt_collides = false
+            for (let food of this.game_scene.foods.foods) {
                 if (Rt.Overlaps(rt, food.pos)) {
                     rt_collides = true
                     break
                 }
             }
 
-            for (var snake of this.game_scene.snakes.snakes) {
+            for (let snake of this.game_scene.snakes.snakes) {
                 if (rectangleCollidesWithAny(rt, snake.tail)) {
                     rt_collides = true
                     break
@@ -424,7 +442,7 @@ class Foods extends Phaser.GameObjects.Graphics {
                 this.next_food = Phaser.Math.RND.between(this.next_food_min, this.next_food_max)
             }
         }
-        for (var food of this.foods) {
+        for (let food of this.foods) {
             food.update()
         }
         this.foods = this.foods.filter(function(food) {
@@ -437,7 +455,7 @@ class Foods extends Phaser.GameObjects.Graphics {
         })
     }
     render() {
-        for (var food of this.foods) {
+        for (let food of this.foods) {
             food.render()
         }
     }
@@ -554,7 +572,7 @@ class GameScene extends Phaser.Scene {
     }
 
     save_data() {
-        var obj = {
+        let obj = {
             mute: this.mute,
             highest_score: this.highest_score,
         }
@@ -754,15 +772,16 @@ Press:
         if (!this.mute) {
             this.game_over_sound.play()
         }
+        this.snakes.snakes[snake_number].tongue.destroy()
 
-        var square = this.add.graphics()
+        let square = this.add.graphics()
         square.fillStyle(snakeFoodColors[snake_number])
         let sz = 5
         square.fillRect(0, 0, sz, sz)
         square.generateTexture('square', sz, sz)
 
-        var particles = this.add.particles('square')
-        for (var cell of this.snakes.snakes[snake_number].tail) {
+        let particles = this.add.particles('square')
+        for (let cell of this.snakes.snakes[snake_number].tail) {
             let emitter = particles.createEmitter({
                 x: cell.x + cell.width / 2,
                 y: cell.y + cell.height / 2,
@@ -777,7 +796,7 @@ Press:
 
             })
 
-            this.time.delayedCall(700, function() { emitter.stop() }, [], this)
+            this.time.delayedCall(1000, function() { emitter.stop() }, [], this)
         }
     }
 
@@ -810,7 +829,7 @@ Press:
     }
 
     update(time: number, delta: number) {
-        var frameDuration = 1000 / FPS
+        let frameDuration = 1000 / FPS
         if (delta > 1000) {
             delta = frameDuration
         }
@@ -819,7 +838,7 @@ Press:
             this.update_frame()
             this.frame_lag -= frameDuration
         }
-        var lagOffset = this.frame_lag / frameDuration
+        //        let lagOffset = this.frame_lag / frameDuration
         this.render()
     }
     render() {
@@ -832,5 +851,5 @@ window.onload = () => {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('../service_worker.js?game_name=4snakes')
     }
-    var game = new Game()
+    new Game()
 }

@@ -1,7 +1,7 @@
 {
   "name": "games2d",
   "short_name": "games2d",
-  "start_url": "/games2d",
+  "start_url": "/games2d/",
   "display": "fullscreen",
   "background_color": "#000",
   "description": "Collection of 2d games for the web",

@@ -26,3 +26,5 @@ copy:
 	cp -r phaser* dist
 	cp -a --parents */*.webmanifest dist
 
+local:
+	cd dist; python3 -m http.server 8003&

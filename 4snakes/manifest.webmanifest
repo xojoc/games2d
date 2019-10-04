@@ -1,8 +1,9 @@
 {
   "name": "4snakes",
   "short_name": "4snakes",
-  "start_url": "/games2d/4snakes",
+  "start_url": "/games2d/4snakes/",
   "display": "fullscreen",
+  "orientation": "landscape",
   "background_color": "#000",
   "description": "Snake game, but with 4 snakes",
   "categories": "games",

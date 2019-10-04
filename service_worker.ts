@@ -5,6 +5,8 @@
 
 // offline handling for all games
 
+let CacheName = "games2d-v4"
+
 interface StringMap {
     [key: string]: string
 }
@@ -19,6 +21,8 @@ function parameters(): StringMap {
 }
 
 self.addEventListener('install', (e) => {
+    self.skipWaiting();
+
     let gameName = parameters()["game_name"]
     let files: string[] = [];
     if (gameName == "games2d") {
@@ -31,9 +35,10 @@ self.addEventListener('install', (e) => {
     files = files.filter(function(elem, index, self) {
         return index === self.indexOf(elem);
     })
-    console.log(`${gameName}: [Service Worker] Install`);
+    console.log(`${gameName}: cache name: ${CacheName}`)
+    console.log(`${gameName}: [Service Worker] Install`)
     e.waitUntil(
-        caches.open("games2d").then((cache) => {
+        caches.open(CacheName).then((cache) => {
             console.log(`${gameName}: [Service Worker] Caching all`);
             console.log(files)
             return cache.addAll(files);
@@ -44,23 +49,18 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('fetch', (e) => {
     e.respondWith(
-        caches.match(e.request).then((r) => {
-            console.log('[Service Worker] Fetching resource: ' + e.request.url);
-            if (r) {
-                console.log("Resource is cached");
-            } else {
-                console.log("Resource not cached");
-            }
-            return r || fetch(e.request).then((response) => {
+        caches.open(CacheName).then((cache) => {
+            return cache.match(e.request).then((r) => {
+                console.log('[Service Worker] Fetching resource: ' + e.request.url);
+                if (r) {
+                    console.log("Resource is cached");
+                } else {
+                    console.log("Resource not cached");
+                }
+                return r || fetch(e.request).then((response) => {
 
-                return response;
-                /*
-                                return caches.open("games2d").then((cache) => {
-                                    console.log('[Service Worker] Caching new resource: ' + e.request.url);
-                                    cache.put(e.request, response.clone());
-                                    return response;
-                                });
-                */
+                    return response;
+                });
             });
         })
     );
