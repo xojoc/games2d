@@ -1,13 +1,18 @@
 {
   "compileOnSave": true,
-  "compilerOptions": {
-    "strictPropertyInitialization": false,
-    "module": "es6",
-    "target": "es6",
-    "outDir": "dist",
-    "rootDir": "./",
-    "sourceMap": true,
-    "strict": true,
-    "esModuleInterop": true
+	"compilerOptions": {
+	  "lib": ["es2017", "dom"],
+	  "allowJs": false,
+      "target": "es6",
+      "outDir": "dist",
+      "rootDir": "./",
+	  "strict": true,
+	  "strictPropertyInitialization": false,
+	  "incremental": true,
+	  "tsBuildInfoFile": "/tmp/games2d_incremental_tsc.json",
+	  "inlineSourceMap": true,
+	  "inlineSources": true,
+	  "preserveConstEnums": true,
+	  "skipLibCheck": true
   }
 }

@@ -2,8 +2,16 @@
   "name": "games2d",
   "short_name": "games2d",
   "start_url": "/games2d/",
-  "display": "fullscreen",
-  "background_color": "#000",
-  "description": "Collection of 2d games for the web",
-  "categories": "games"
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#2A5DB0",
+  "description": "Collection of fun and addictive 2d games for the web.",
+  "categories": "games",
+  "icons": [
+    {
+      "src": "assets/games2d_icon.png",
+      "sizes": "315x315",
+      "type": "image/png"
+    }
+  ]
 }

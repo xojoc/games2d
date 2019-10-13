@@ -1,11 +1,17 @@
 //// copyright: AGPLv3 or later
 
+// xojoc: this game is written in snake_case instead of
+//        CamelCase because it's a snake game ;)
+
 // todo: find better sounds
 
+import { Games2d } from '../games2d.js'
 
-const ScreenWidth = 450
-const ScreenHeight = 375
+const Scale = 2
+const ScreenWidth = 450 * Scale
+const ScreenHeight = 375 * Scale
 const FPS = 40
+
 
 class Game extends Phaser.Game {
     constructor() {
@@ -20,6 +26,8 @@ class Game extends Phaser.Game {
                 target: FPS,
             },
             scale: {
+                parent: "content",
+                expandParent: true,
                 autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
                 mode: Phaser.Scale.FIT,
                 fullscreenTarget: "content",
@@ -34,16 +42,7 @@ class Preloader extends Phaser.Scene {
     constructor() { super("Preloader") }
 
     preload() {
-        // icons from https://opengameart.org/content/game-icons
-        this.load.image('restart', 'assets/return.png')
-        this.load.image('pause', 'assets/pause.png')
-        this.load.image('play', 'assets/right.png')
-        this.load.image('mute', 'assets/musicOn.png')
-        this.load.image('unmute', 'assets/musicOff.png')
-        this.load.image('larger', 'assets/larger.png')
-        this.load.image('smaller', 'assets/smaller.png')
-
-
+        Games2d.preload(this)
         this.load.audio('game_over', 'assets/game_over.wav')
         this.load.audio('eat1', 'assets/eat1.wav')
     }
@@ -85,8 +84,8 @@ class Snake extends Phaser.GameObjects.Graphics {
     count_frames_after_input: number;
     first_idle_change_of_direction: boolean;
     render_frame: number;
-    tongue_cell: Phaser.Geom.Rectangle;
-    tongue: Phaser.GameObjects.Rectangle;
+    left_eye: Phaser.GameObjects.Arc;
+    right_eye: Phaser.GameObjects.Arc;
     constructor(config: SnakeConfig) {
         super(config.game_scene, {})
         config.game_scene.add.existing(this)
@@ -103,21 +102,23 @@ class Snake extends Phaser.GameObjects.Graphics {
         this.first_idle_change_of_direction = true
 
         this.tail = [config.head];
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 9; i++) {
             this.grow_only()
         }
         this.depth = 500
         this.render_frame = 0
-        this.tongue = this.config.game_scene.add.rectangle(0, 0, 4, 5)
-        this.tongue.setFillStyle(0xff1144)
-        this.tongue_cell = new Rt(0, 0, this.tongue.width, this.tongue.height)
+
+        this.left_eye = this.config.game_scene.add.circle(0, 0, 3, 0x010101)
+        this.left_eye.setDepth(this.depth + 1)
+        this.right_eye = this.config.game_scene.add.circle(0, 0, 3, 0x010101)
+        this.right_eye.setDepth(this.depth + 1)
     }
     grow_only() {
         let dtx = this.velocity.x * Math.cos(this.snake_angle)
         let dty = this.velocity.y * Math.sin(this.snake_angle)
         let new_cell = new Rt(this.tail[0].x + dtx,
             this.tail[0].y + dty,
-            10, 10)
+            2 * Scale, 2 * Scale)
 
         this.tail.unshift(new_cell)
     }
@@ -148,7 +149,7 @@ class Snake extends Phaser.GameObjects.Graphics {
         let right_side_touch = false
         let pointer = this.config.game_scene.input.activePointer
         if (pointer.isDown &&
-            pointer.y > 70) {
+            pointer.y > 70 * Scale) {
             if (pointer.x < ScreenWidth / 2) {
                 left_side_touch = true
             } else {
@@ -176,8 +177,9 @@ class Snake extends Phaser.GameObjects.Graphics {
             return
         }
 
-        let input_received = this.handle_input()
-        this.update_idle(input_received)
+        //        let input_received = this.handle_input()
+        this.handle_input()
+        //     this.update_idle(input_received)
 
         this.move(this.velocity.x * Math.cos(this.snake_angle),
             this.velocity.y * Math.sin(this.snake_angle))
@@ -185,18 +187,11 @@ class Snake extends Phaser.GameObjects.Graphics {
     move(dtx: number, dty: number) {
         let new_cell = new Rt(this.tail[0].x + dtx,
             this.tail[0].y + dty,
-            2, 2)
+            2 * Scale, 2 * Scale)
         new_cell.x += ScreenWidth
         new_cell.x %= ScreenWidth
         new_cell.y += ScreenHeight
         new_cell.y %= ScreenHeight
-
-        this.tongue_cell.x = new_cell.x + 1.3 * Math.cos(this.snake_angle)
-        this.tongue_cell.y = new_cell.y + 1.3 * Math.sin(this.snake_angle)
-        this.tongue_cell.x += ScreenWidth
-        this.tongue_cell.x %= ScreenWidth
-        this.tongue_cell.y += ScreenHeight
-        this.tongue_cell.y %= ScreenHeight
 
         for (let snake of this.config.game_scene.snakes.snakes) {
             let start_idx = 0
@@ -210,19 +205,21 @@ class Snake extends Phaser.GameObjects.Graphics {
         }
         for (let food of this.config.game_scene.foods.foods) {
             if (Rt.Overlaps(new_cell, food.pos)) {
-                if (!this.config.game_scene.mute) {
+                if (!this.config.game_scene.menu.isMute()) {
                     this.config.game_scene.eat_sound.play()
                 }
                 this.config.game_scene.snakes.setActiveSnake(food.num)
                 this.config.game_scene.increaseScore(1)
-                this.velocity.x += this.acceleration.x
-                this.velocity.y += this.acceleration.y
+                this.velocity.x = Math.min(this.velocity.x + this.acceleration.x, 5.3 * Scale)
+                this.velocity.y = Math.min(this.velocity.y + this.acceleration.y, 5.3 * Scale)
+
                 this.config.game_scene.changeBackgroundColor()
                 food.life = -1
-                this.tail.unshift(new_cell)
-                this.tail.unshift(new_cell)
-                this.tail.unshift(new_cell)
-                this.tail.unshift(new_cell)
+                this.tail.push(this.tail[this.tail.length - 1])
+                this.tail.push(this.tail[this.tail.length - 1])
+                this.tail.push(this.tail[this.tail.length - 1])
+                this.tail.push(this.tail[this.tail.length - 1])
+                Games2d.vibrate(30)
             }
         }
         this.tail.pop()
@@ -239,7 +236,8 @@ class Snake extends Phaser.GameObjects.Graphics {
             return
         }
 
-        let snake_width = 10
+        let snake_width = 10 * Scale
+
 
 
         this.lineStyle(snake_width, snakeFoodColors[this.config.num])
@@ -260,8 +258,20 @@ class Snake extends Phaser.GameObjects.Graphics {
         }
         this.strokePath()
 
-        this.tongue.setPosition(this.tongue_cell.x + 1, this.tongue_cell.y)
-        this.tongue.setRotation(this.snake_angle)
+        let distance = 4.3
+
+        let eyes_angle = this.snake_angle + Math.PI / 2
+
+        this.left_eye.setPosition(this.tail[1].x - distance * Math.cos(eyes_angle),
+            this.tail[1].y
+            - distance * Math.sin(eyes_angle))
+
+        this.left_eye.setRotation(eyes_angle)
+
+        this.right_eye.setPosition(this.tail[1].x + distance * Math.cos(eyes_angle),
+            this.tail[1].y
+            + distance * Math.sin(eyes_angle))
+        this.right_eye.setRotation(eyes_angle)
     }
 }
 
@@ -274,9 +284,9 @@ class Snakes extends Phaser.GameObjects.Graphics {
         this.snakes = [new Snake({
             game_scene: scene,
             start_angle: 0,
-            head: new Rt(51, 50, 10, 10),
-            velocity: new Pt(4, 4),
-            acceleration: new Pt(0.1, 0.1),
+            head: new Rt(51 * Scale, 50 * Scale, 10 * Scale, 10 * Scale),
+            velocity: new Pt(3 * Scale, 3 * Scale),
+            acceleration: new Pt(0.2 * Scale, 0.2 * Scale),
             num: 0,
             turn_angle: Math.PI / 18,
             turn_angle_idle: Math.PI / 120,
@@ -286,9 +296,9 @@ class Snakes extends Phaser.GameObjects.Graphics {
         new Snake({
             game_scene: scene,
             start_angle: Math.PI / 2,
-            head: new Rt(ScreenWidth - 70, 51, 10, 10),
-            velocity: new Pt(4, 4),
-            acceleration: new Pt(0.1, 0.1),
+            head: new Rt(ScreenWidth - 70 * Scale, 51 * Scale, 10 * Scale, 10 * Scale),
+            velocity: new Pt(3 * Scale, 3 * Scale),
+            acceleration: new Pt(0.2 * Scale, 0.2 * Scale),
             num: 1,
             turn_angle: Math.PI / 18,
             turn_angle_idle: Math.PI / 120,
@@ -298,9 +308,9 @@ class Snakes extends Phaser.GameObjects.Graphics {
         new Snake({
             game_scene: scene,
             start_angle: Math.PI,
-            head: new Rt(ScreenWidth - 73, ScreenHeight - 70, 10, 10),
-            velocity: new Pt(4, 4),
-            acceleration: new Pt(0.1, 0.1),
+            head: new Rt(ScreenWidth - 73 * Scale, ScreenHeight - 70 * Scale, 10 * Scale, 10 * Scale),
+            velocity: new Pt(3 * Scale, 3 * Scale),
+            acceleration: new Pt(0.2 * Scale, 0.2 * Scale),
             num: 2,
             turn_angle: Math.PI / 18,
             turn_angle_idle: Math.PI / 120,
@@ -310,9 +320,9 @@ class Snakes extends Phaser.GameObjects.Graphics {
         new Snake({
             game_scene: scene,
             start_angle: 3 * Math.PI / 2,
-            head: new Rt(50, ScreenHeight - 51, 10, 10),
-            velocity: new Pt(4, 4),
-            acceleration: new Pt(0.1, 0.1),
+            head: new Rt(50 * Scale, ScreenHeight - 51 * Scale, 10 * Scale, 10 * Scale),
+            velocity: new Pt(3 * Scale, 3 * Scale),
+            acceleration: new Pt(0.2 * Scale, 0.2 * Scale),
             num: 3,
             turn_angle: Math.PI / 18,
             turn_angle_idle: Math.PI / 120,
@@ -379,8 +389,8 @@ class Food extends Phaser.GameObjects.Graphics {
         this.life -= 1
     }
     random_rectangle(): Phaser.Geom.Rectangle {
-        let food_width = 13
-        let food_height = 13
+        let food_width = 13 * Scale
+        let food_height = food_width
         while (true) {
             let rt = new Rt(Phaser.Math.RND.between(0, ScreenWidth - food_width),
                 Phaser.Math.RND.between(0, ScreenHeight - food_height), food_width, food_height)
@@ -473,19 +483,11 @@ const background_colors = [0x004225, 0x243757, 0x3b1420, 0x2b2b2b, 0x433D54]
 
 class GameScene extends Phaser.Scene {
     state: GameState;
-    paused: boolean
     highest_score: number
     score: number
     background_color: any
     foods: Foods
     snakes: Snakes
-    pause_sprite: Phaser.GameObjects.Sprite
-    play_sprite: Phaser.GameObjects.Sprite
-    mute_sprite: Phaser.GameObjects.Sprite
-    unmute_sprite: Phaser.GameObjects.Sprite
-    restart_sprite: Phaser.GameObjects.Sprite
-    fullscreen_on_sprite: Phaser.GameObjects.Sprite
-    fullscreen_off_sprite: Phaser.GameObjects.Sprite
     game_over_text: Phaser.GameObjects.Text
     score_text: Phaser.GameObjects.Text
     frame_lag: number
@@ -495,8 +497,8 @@ class GameScene extends Phaser.Scene {
     a_key: Phaser.Input.Keyboard.Key
     d_key: Phaser.Input.Keyboard.Key
     instructions_text: Phaser.GameObjects.Text;
-    mute: boolean;
     game_over_timestamp: number;
+    menu: Games2d.Menu;
 
     constructor() {
         super('GameScene')
@@ -523,85 +525,27 @@ class GameScene extends Phaser.Scene {
         this.score_text.text = `${this.score}/${this.highest_score}`
     }
 
-    toggle_mute() {
-        this.mute = !this.mute
-        this.sound.mute = this.mute
-        if (this.mute) {
-            this.mute_sprite.setVisible(false)
-            this.mute_sprite.disableInteractive()
-            this.unmute_sprite.setInteractive()
-            this.unmute_sprite.setVisible(true)
-        } else {
-            this.mute_sprite.setVisible(true)
-            this.mute_sprite.setInteractive()
-            this.unmute_sprite.disableInteractive()
-            this.unmute_sprite.setVisible(false)
-        }
-        this.save_data()
-    }
-
-    toggle_pause() {
-        this.paused = !this.paused
-        if (this.paused) {
-            this.pause_sprite.setVisible(false)
-            this.pause_sprite.disableInteractive()
-            this.play_sprite.setInteractive()
-            this.play_sprite.setVisible(true)
-        } else {
-            this.pause_sprite.setVisible(true)
-            this.pause_sprite.setInteractive()
-            this.play_sprite.disableInteractive()
-            this.play_sprite.setVisible(false)
-        }
-    }
-
-    toggle_fullscreen() {
-        if (this.scale.isFullscreen) {
-            this.fullscreen_on_sprite.setVisible(true)
-            this.fullscreen_on_sprite.setInteractive()
-            this.fullscreen_off_sprite.setVisible(false)
-            this.fullscreen_off_sprite.disableInteractive()
-            this.scale.stopFullscreen()
-        } else {
-            this.fullscreen_on_sprite.setVisible(false)
-            this.fullscreen_on_sprite.disableInteractive()
-            this.fullscreen_off_sprite.setVisible(true)
-            this.fullscreen_off_sprite.setInteractive()
-            this.scale.startFullscreen()
-        }
-    }
 
     save_data() {
         let obj = {
-            mute: this.mute,
             highest_score: this.highest_score,
         }
-        localStorage.setItem('save', JSON.stringify(obj))
+        localStorage.setItem('4snakes', JSON.stringify(obj))
     }
 
     load_data() {
         let obj;
         try {
-            obj = JSON.parse(localStorage.getItem('save') || '')
+            obj = JSON.parse(localStorage.getItem('4snakes') || '')
         } catch {
         }
         if (obj) {
-            this.mute = obj.mute
-            this.sound.mute = obj.mute
             this.highest_score = obj.highest_score
         } else {
-            this.mute = false
-            this.sound.mute = false
             this.highest_score = 0
         }
         if (!this.highest_score) {
             this.highest_score = 0
-        }
-        if (!this.sound.mute) {
-            this.sound.mute = false
-        }
-        if (!this.mute) {
-            this.mute = false
         }
     }
 
@@ -609,7 +553,6 @@ class GameScene extends Phaser.Scene {
     create() {
         this.frame_lag = 0
         this.state = GameState.FirstScreen
-        this.paused = false
         this.score = 0
         this.snakes = new Snakes(this)
         this.foods = new Foods(this)
@@ -623,81 +566,12 @@ class GameScene extends Phaser.Scene {
 
         this.load_data()
 
-        this.restart_sprite = this.add.sprite(105, 6, 'restart')
-            .setScale(0.5)
-            .setInteractive()
-            .setAlpha(0.5)
-            .setOrigin(0, 0)
-        this.restart_sprite.on('pointerdown', function() {
-            this.scene.scene.restart()
-        })
-
-        this.pause_sprite = this.add.sprite(65, 6, 'pause')
-            .setScale(0.5)
-            .setInteractive()
-            .setAlpha(0.5)
-            .setOrigin(0, 0)
-        this.pause_sprite.on('pointerdown', function() {
-            this.scene.toggle_pause()
-        })
-
-        this.play_sprite = this.add.sprite(65, 6, 'play')
-            .setScale(0.5)
-            .setInteractive()
-            .setAlpha(0.5)
-            .setOrigin(0, 0)
-            .setVisible(false)
-        this.play_sprite.on('pointerdown', function() {
-            this.scene.toggle_pause()
-        })
-
-        this.mute_sprite = this.add.sprite(26, 6, 'mute')
-            .setScale(0.5)
-            .setInteractive()
-            .setAlpha(0.5)
-            .setOrigin(0, 0)
-            .setVisible(!this.mute)
-        this.mute_sprite.on('pointerdown', function() {
-            this.scene.toggle_mute()
-        })
-
-        this.unmute_sprite = this.add.sprite(26, 6, 'unmute')
-            .setScale(0.5)
-            .setInteractive()
-            .setAlpha(0.5)
-            .setOrigin(0, 0)
-            .setVisible(this.mute)
-        this.unmute_sprite.on('pointerdown', function() {
-            this.scene.toggle_mute()
-        })
+        this.menu = new Games2d.Menu({ scene: this })
 
 
-        this.fullscreen_on_sprite = this.add.sprite(145, 6, 'larger')
-        this.fullscreen_on_sprite.setScale(0.5)
-            .setInteractive()
-            .setAlpha(0.5)
-            .setOrigin(0, 0)
-            .setVisible(!this.scale.isFullscreen)
-        this.fullscreen_on_sprite.on('pointerup', function() {
-            this.scene.toggle_fullscreen()
-        })
-
-
-        this.fullscreen_off_sprite = this.add.sprite(145, 6, 'smaller')
-        this.fullscreen_off_sprite.setScale(0.5)
-            .setInteractive()
-            .setAlpha(0.5)
-            .setOrigin(0, 0)
-            .setVisible(this.scale.isFullscreen)
-        this.fullscreen_off_sprite.on('pointerup', function() {
-            this.scene.toggle_fullscreen()
-        })
-
-
-
-        this.score_text = this.add.text(ScreenWidth - 6, 4, `${this.score}/${this.highest_score}`)
+        this.score_text = this.add.text(ScreenWidth - 6 * Scale, 4 * Scale, `${this.score}/${this.highest_score}`)
             .setFontFamily('Serif')
-            .setFontSize(20)
+            .setFontSize(20 * Scale)
             .setColor('#ffffff')
             .setFontStyle('bold')
             .setAlpha(0.6)
@@ -706,7 +580,7 @@ class GameScene extends Phaser.Scene {
 
         this.game_over_text = this.add.text(ScreenWidth / 2, ScreenHeight / 2, `GameOver`)
             .setFontFamily('Serif')
-            .setFontSize(50)
+            .setFontSize(50 * Scale)
             .setColor('#ffffff')
             .setFontStyle('bold')
             .setOrigin(0.5, 0.5)
@@ -730,37 +604,16 @@ Press:
  f - to toggle fullscreen`
         }
 
-        this.input.keyboard.enabled
-
-        this.instructions_text = this.add.text(ScreenWidth / 2, 100, instructions)
+        this.instructions_text = this.add.text(ScreenWidth / 2, 100 * Scale, instructions)
 
             .setAlign('center')
             .setFontFamily('Serif')
-            .setFontSize(17)
+            .setFontSize(17 * Scale)
             .setColor('#ffffff')
             .setFontStyle('bold')
             .setOrigin(0.5, 0)
             .setDepth(1000)
         this.instructions_text.setVisible(true)
-
-
-        this.input.keyboard.on('keydown', (event) => {
-            switch (event.key) {
-                case "r":
-                case "n":
-                    this.scene.restart()
-                    break
-                case "m":
-                    this.toggle_mute()
-                    break
-                case "p":
-                    this.toggle_pause()
-                    break
-                case "f":
-                    this.toggle_fullscreen()
-                    break
-            }
-        })
 
         this.changeBackgroundColor()
     }
@@ -769,14 +622,15 @@ Press:
         this.game_over_timestamp = Date.now()
         this.game_over_text.setVisible(true)
         this.state = GameState.GameOver
-        if (!this.mute) {
+        if (!this.menu.isMute()) {
             this.game_over_sound.play()
         }
-        this.snakes.snakes[snake_number].tongue.destroy()
+        this.snakes.snakes[snake_number].left_eye.destroy()
+        this.snakes.snakes[snake_number].right_eye.destroy()
 
         let square = this.add.graphics()
         square.fillStyle(snakeFoodColors[snake_number])
-        let sz = 5
+        let sz = 5 * Scale
         square.fillRect(0, 0, sz, sz)
         square.generateTexture('square', sz, sz)
 
@@ -788,9 +642,9 @@ Press:
                 frequency: 50,
                 scale: { start: 1.0, end: 0.0 },
                 lifespan: { min: 100, max: 200 },
-                accelerationX: Phaser.Math.RND.between(-200, 200),
+                accelerationX: Phaser.Math.RND.between(-200 * Scale, 200 * Scale),
                 accelerationY: Phaser.Math.RND.between(-200, 200),
-                speed: { min: 80, max: 120 },
+                speed: { min: 80 * Scale, max: 120 * Scale },
                 angle: { min: 0, max: 360 },
                 blendMode: 'ADD'
 
@@ -808,7 +662,7 @@ Press:
                 this.cursors.left.isDown ||
                 this.cursors.right.isDown ||
                 (this.input.activePointer.isDown &&
-                    this.input.activePointer.y > 70)) {
+                    this.input.activePointer.y > 70 * Scale)) {
                 if (this.state == GameState.GameOver &&
                     ((Date.now() - this.game_over_timestamp) > 500)) {
                     this.scene.restart()
@@ -821,14 +675,14 @@ Press:
             }
         }
         if (this.state == GameState.Playing) {
-            if (!this.paused) {
+            if (!this.menu.isPaused()) {
                 this.snakes.update()
                 this.foods.update()
             }
         }
     }
 
-    update(time: number, delta: number) {
+    update(_: number, delta: number) {
         let frameDuration = 1000 / FPS
         if (delta > 1000) {
             delta = frameDuration
@@ -848,8 +702,5 @@ Press:
 }
 
 window.onload = () => {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('../service_worker.js?game_name=4snakes')
-    }
     new Game()
 }

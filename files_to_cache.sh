@@ -11,6 +11,9 @@ do
 	if [ $game = "dist" ]; then
 		continue
 	fi
+	if [ $game = "assets" ]; then
+		continue
+	fi
 	if [[ $game = phaser-* ]]; then
 		continue
 	fi
@@ -19,6 +22,8 @@ do
 	echo "	\"${rootDir}\","
 	echo "	\"${rootDir}index.html\","
 	echo "	\"${rootDir}main.css\","
+	echo "	\"${rootDir}games2d.js\","
+	echo "	\"${rootDir}manifest.webmanifest\","
 	for file in phaser-*/*; do
 		echo "	\"${rootDir}$file\","
 	done
@@ -32,7 +37,6 @@ do
 	do
 		echo "	\"${rootDir}${file%.ts}.js\","
 	done
-	echo "	\"${rootDir}${game}/manifest.webmanifest\","
 	echo "	\"${rootDir}${game}/index.html\","
 	echo "	\"${rootDir}${game}/\","
 	echo '],'

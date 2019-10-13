@@ -8,20 +8,48 @@
 	<link rel="stylesheet" href="main.css" type="text/css">
 	<script>
 	  if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('../service_worker.js?game_name=games2d')
+        navigator.serviceWorker.register('service_worker.js?game_name=games2d')
 		  }
-	  </script>
+	</script>
+	<script src="https://js.stripe.com/v3"></script>
+    <link rel="icon" href="assets/games2d_icon.png">
   </head>
   <body id=games2d>
-    <h1>games2d</h1>
-	<p>A collection of 2d games for the web.</p>
+    <h1><span class=games2d_title_games>games</span><span class=games2d_title_2d>2d</span></h1>
+	<p>A collection of <span class=games2d_title_2d>2d</span> <span class=games2d_title_games>games</span> for the web.</p>
+
+<div id="error-message"></div>
 	<div class="games">
   <div class="game"><a href="4snakes">4snakes</a></div>
+<div class="game">Enjoying the games? Support their development by <button id="checkout-link-STRIPE_SKU" class=buy>donating!</button></div>
   <div class="game">Others coming...</div>
 </div>
-	<p>Made by <a href="https://xojoc.pw" title="Xojoc's home">Alexandru Cojocaru</a>.</p>
-	  <p><a href="https://xojoc.pw/donate" title="Donate">Donate!</a></p>
-	<p>Get the <a href="https://github.com/xojoc/games2d" title="games2d's source">source</a>.</p>
+	<p>Made by <a href="https://xojoc.pw" title="My website">Alexandru Cojocaru</a>.</p>
+	<p>Get the <a href="https://github.com/xojoc/games2d" title="games2d's source">source code</a>.</p>
+
+
+		<script>
+(function() {
+	var stripe = Stripe('STRIPE_PUBLIC_KEY');
+  var checkoutLink = document.getElementById('checkout-link-STRIPE_SKU');
+  checkoutLink.addEventListener('click', function () {
+    stripe.redirectToCheckout({
+		items: [{sku: 'STRIPE_SKU',
+				 quantity: 1}],
+      successUrl: 'https://xojoc.pw/games2d/thanks',
+      cancelUrl: 'https://xojoc.pw/games2d/',
+    })
+    .then(function (result) {
+      if (result.error) {
+        // If `redirectToCheckout` fails due to a browser or network
+        // error, display the localized error message to your customer.
+        var displayError = document.getElementById('error-message');
+        displayError.textContent = result.error.message;
+      }
+    });
+  });
+})();
+</script>
   </body>
 </html>
    

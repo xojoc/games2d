@@ -5,7 +5,7 @@
 
 // offline handling for all games
 
-let CacheName = "games2d-v4"
+let CacheName = "games2d-v11"
 
 interface StringMap {
     [key: string]: string
@@ -57,14 +57,24 @@ self.addEventListener('fetch', (e) => {
                 } else {
                     console.log("Resource not cached");
                 }
-                return r || fetch(e.request).then((response) => {
-
-                    return response;
-                });
+                return r || fetch(e.request)
             });
         })
     );
 });
 
 
-
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then(function(cacheNames) {
+            return Promise.all(
+                cacheNames.map(function(cn) {
+                    if (cn != CacheName) {
+                        console.log(`[Service Worker] Delete old cache ${cn}`)
+                        return caches.delete(cn)
+                    }
+                })
+            )
+        })
+    )
+})
