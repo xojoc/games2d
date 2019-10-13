@@ -242,7 +242,7 @@ Press:
     }
 
     flashQuadrant(i: number) {
-        this.quadrants[i].setFillStyle(0xfcfcfc)
+        this.quadrants[i].setFillStyle(0xf8f8f8)
         if (!this.menu.isMute()) {
             this.notes[i].play()
         }
