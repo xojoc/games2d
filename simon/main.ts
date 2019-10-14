@@ -60,9 +60,7 @@ class GameScene extends Phaser.Scene {
     state: GameState
     highestScore: number
     score: number
-    gameOverText: Phaser.GameObjects.Text
     scoreText: Phaser.GameObjects.Text
-    instructionsText: Phaser.GameObjects.Text
     quadrants: Phaser.GameObjects.Rectangle[]
     selectedQuadrant: number
     menu: Games2d.Menu
@@ -177,45 +175,6 @@ class GameScene extends Phaser.Scene {
             .setAlpha(0.6)
             .setOrigin(1, 0)
 
-
-        this.gameOverText = this.add.text(ScreenWidth / 2, ScreenHeight / 2, `GameOver`)
-            .setFontFamily('Serif')
-            .setFontSize(50)
-            .setColor('#ffffff')
-            .setFontStyle('bold')
-            .setOrigin(0.5, 0.5)
-            .setDepth(1000)
-        this.gameOverText.setVisible(false)
-
-
-        let instructions: string
-
-
-        if (this.sys.game.device.input.touch) {
-            instructions = `Tap on the left/right side of the screen`
-        } else {
-            instructions = `Use the left/right arrow
-OR
-Click on the left/right side of the screen
-
-Press: 
- r - to restart
- m - to mute/unmute
- p - to pause/unpause
- f - to toggle fullscreen`
-        }
-
-        this.instructionsText = this.add.text(ScreenWidth / 2, 100, instructions)
-
-            .setAlign('center')
-            .setFontFamily('Serif')
-            .setFontSize(17)
-            .setColor('#ffffff')
-            .setFontStyle('bold')
-            .setOrigin(0.5, 0)
-            .setDepth(1000)
-        this.instructionsText.setVisible(false)
-
         this.startButton = this.add.circle(ScreenWidth / 2, ScreenHeight / 2, 160, 0xffffff)
         this.startButton.setInteractive()
         this.startButton.on('pointerup', () => {
@@ -225,6 +184,7 @@ Press:
             this.generatedSequenceIndex = 0
             this.userSequenceIndex = 0
             this.selectedQuadrant = -1
+            this.applauseSound.stop()
         })
         this.startText = this.add.text(ScreenWidth / 2, ScreenHeight / 2, `Start`)
             .setAlign('center')

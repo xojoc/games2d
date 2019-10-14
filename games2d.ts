@@ -15,13 +15,10 @@ export namespace Games2d {
 
     export function preload(scene: Phaser.Scene) {
         // icons from https://opengameart.org/content/game-icons
-        scene.load.image('games2d-restart', '../assets/return.png')
-        scene.load.image('games2d-pause', '../assets/pause.png')
-        scene.load.image('games2d-play', '../assets/right.png')
-        scene.load.image('games2d-mute', '../assets/musicOn.png')
-        scene.load.image('games2d-unmute', '../assets/musicOff.png')
-        scene.load.image('games2d-larger', '../assets/larger.png')
-        scene.load.image('games2d-smaller', '../assets/smaller.png')
+        scene.load.spritesheet('games2d-white-icons', '../assets/white_icons.png', {
+            frameWidth: 100,
+            frameHeight: 100
+        })
     }
 
     type Games2dMenuConfig = {
@@ -34,6 +31,7 @@ export namespace Games2d {
         private paused: boolean;
         private fullscreen: boolean;
         private readonly storageKey = 'games2d-menu';
+        volumeText: Phaser.GameObjects.Text;
         constructor(config: Games2dMenuConfig) {
             super(config.scene, "games2d menu")
             config.scene.add.existing(this)
@@ -58,6 +56,7 @@ export namespace Games2d {
                 paused: this.paused,
                 fullscreen: this.fullscreen,
                 mute: this.mute,
+                volume: this.config.scene.sound.volume
             }
             localStorage.setItem(this.storageKey, JSON.stringify(obj))
         }
@@ -73,12 +72,30 @@ export namespace Games2d {
                 this.fullscreen = obj.fullscreen
                 this.mute = obj.mute
                 this.config.scene.sound.mute = obj.mute
+                if (typeof (obj.volume) !== 'undefined') {
+                    this.config.scene.sound.volume = obj.volume
+                }
             } else {
                 this.paused = false
                 this.fullscreen = false
                 this.mute = false
                 this.config.scene.sound.mute = false
             }
+        }
+
+        private updateVolumeText() {
+            if (this.mute) {
+                this.volumeText.text = "mute"
+            } else {
+                let n = this.config.scene.sound.volume * 100
+                n = Math.round(n)
+                this.volumeText.text = n.toString() + "%"
+            }
+        }
+
+        private modifyVolumeBy(d: number) {
+            this.config.scene.sound.volume = Phaser.Math.Clamp(this.config.scene.sound.volume + d, 0, 1)
+            this.updateVolumeText()
         }
 
         private toggleMute() {
@@ -95,6 +112,7 @@ export namespace Games2d {
                 this.icons['unmute'].disableInteractive()
                 this.icons['unmute'].setVisible(false)
             }
+            this.updateVolumeText()
             this.saveData()
         }
 
@@ -139,12 +157,11 @@ export namespace Games2d {
             this.config.scene.scene.restart()
         }
 
-
         private create() {
             this.loadData()
 
             if (this.fullscreen) {
-                // xojoc: fixme: user was in fullscreen
+                // xojoc(#3): fixme: user was in fullscreen
                 //        last time. If our PWA is installed
                 //        we should find a way to go fullscreen.
                 //        For now just reset the property to false.
@@ -153,50 +170,91 @@ export namespace Games2d {
                 this.saveData()
             }
 
+
+            let x = 5
+
             this.icons = {}
 
-            this.icons['mute'] = this.config.scene.add.sprite(52, 12, 'games2d-mute')
+            let sprite = (x: number, idx: number): Phaser.GameObjects.Sprite => {
+                let icon = this.config.scene.add.sprite(x, 0, 'games2d-white-icons', idx)
+                icon.setInteractive()
+                icon.setAlpha(0.5)
+                icon.setOrigin(0, 0)
+                icon.setVisible(true)
+                icon.input.hitArea = new Phaser.Geom.Rectangle(10, 10, 80, 80)
+                icon.setScale(0.7)
+                return icon
+            }
+
+            this.icons['minus'] = sprite(x, 19 * 6 + 2)
+            this.icons['minus'].on('pointerup', () => {
+                this.modifyVolumeBy(-0.1)
+            })
+
+            x += 70
+
+
+            this.volumeText = this.config.scene.add.text(x, 20, '')
+                .setFontSize(30) // 45
+                .setAlpha(0.5)
+                .setAlign('center')
+                .setFontStyle('bold')
+
+            this.updateVolumeText()
+
+
+            x += 65
+
+
+            this.icons['plus'] = sprite(x, 9 * 6 + 2)
+            this.icons['plus'].on('pointerup', () => {
+                this.modifyVolumeBy(0.1)
+            })
+
+            x += 60
+
+            this.icons['mute'] = sprite(x, 14 * 6 + 2)
             this.icons['mute'].on('pointerup', () => {
                 this.toggleMute()
             })
 
-            this.icons['unmute'] = this.config.scene.add.sprite(52, 12, 'games2d-unmute')
+            this.icons['unmute'] = sprite(x, 15 * 6 + 2)
             this.icons['unmute'].on('pointerup', () => {
                 this.toggleMute()
             })
 
-            this.icons['pause'] = this.config.scene.add.sprite(130, 12, 'games2d-pause')
+            x += 60
+
+            this.icons['pause'] = sprite(x, 11 * 6 + 2)
             this.icons['pause'].on('pointerup', () => {
                 this.togglePause()
             })
 
-            this.icons['play'] = this.config.scene.add.sprite(130, 12, 'games2d-play')
+            this.icons['play'] = sprite(x, 3 * 6 + 2)
             this.icons['play'].on('pointerup', () => {
                 this.togglePause()
             })
+            /*
+                        x += 60
+            
+                        this.icons['restart'] = sprite(x, 5 * 6 + 2)
+                        this.icons['restart'].on('pointerup', () => {
+                            this.restart()
+                        })
+            */
 
-            this.icons['restart'] = this.config.scene.add.sprite(210, 12, 'games2d-restart')
-            this.icons['restart'].on('pointerup', () => {
-                this.restart()
-            })
+            x += 60
 
-            this.icons['fullscreen_on'] = this.config.scene.add.sprite(290, 12, 'games2d-larger')
+            this.icons['fullscreen_on'] = sprite(x, 9 * 6 + 3)
             this.icons['fullscreen_on'].on('pointerup', () => {
                 this.toggleFullscreen()
             })
 
 
-            this.icons['fullscreen_off'] = this.config.scene.add.sprite(290, 12, 'games2d-smaller')
+            this.icons['fullscreen_off'] = sprite(x, 11 * 6 + 1)
             this.icons['fullscreen_off'].on('pointerup', () => {
                 this.toggleFullscreen()
             })
-
-            for (let icon of Object.values(this.icons)) {
-                icon.setInteractive()
-                icon.setAlpha(0.5)
-                icon.setOrigin(0, 0)
-                icon.setVisible(true)
-            }
 
             this.icons['pause'].setVisible(!this.paused)
             this.icons['play'].setVisible(this.paused)

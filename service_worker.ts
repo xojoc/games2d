@@ -5,7 +5,7 @@
 
 // offline handling for all games
 
-let CacheName = "games2d-v12"
+let CacheName = "games2d-v13"
 
 interface StringMap {
     [key: string]: string
