@@ -32,6 +32,10 @@ class Game extends Phaser.Game {
                 mode: Phaser.Scale.FIT,
                 fullscreenTarget: "content",
             },
+            audio: {
+                // xojoc(#5): temporaly disable WebAudio because of a bug on Firefox mobile
+                disableWebAudio: true,
+            },
             type: Phaser.CANVAS,
         }
         super(config)

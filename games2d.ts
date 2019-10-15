@@ -171,7 +171,7 @@ export namespace Games2d {
             }
 
 
-            let x = 5
+            let x = 0
 
             this.icons = {}
 
@@ -182,7 +182,7 @@ export namespace Games2d {
                 icon.setOrigin(0, 0)
                 icon.setVisible(true)
                 icon.input.hitArea = new Phaser.Geom.Rectangle(10, 10, 80, 80)
-                icon.setScale(0.7)
+                icon.setScale(0.9)
                 return icon
             }
 
@@ -191,10 +191,10 @@ export namespace Games2d {
                 this.modifyVolumeBy(-0.1)
             })
 
-            x += 70
+            x += 85
 
 
-            this.volumeText = this.config.scene.add.text(x, 20, '')
+            this.volumeText = this.config.scene.add.text(x, 30, '')
                 .setFontSize(30) // 45
                 .setAlpha(0.5)
                 .setAlign('center')
@@ -243,7 +243,7 @@ export namespace Games2d {
                         })
             */
 
-            x += 60
+            x += 65
 
             this.icons['fullscreen_on'] = sprite(x, 9 * 6 + 3)
             this.icons['fullscreen_on'].on('pointerup', () => {

@@ -15,7 +15,7 @@ files_to_cache_array:
 
 copy: 
 	mkdir -p dist
-	$(shell source .env; cat index.html | sed "s/STRIPE_PUBLIC_KEY/$$STRIPE_PUBLIC_KEY/" | sed "s/STRIPE_SKU/$$STRIPE_SKU/" > dist/index.html)
+	$(cat index.html | sed "s/STRIPE_PUBLIC_KEY/$$STRIPE_PUBLIC_KEY/" | sed "s/STRIPE_SKU/$$STRIPE_SKU/" > dist/index.html)
 	cp thanks.html dist
 	cp main.css dist
 	cp manifest.webmanifest dist

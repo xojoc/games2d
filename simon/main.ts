@@ -21,7 +21,7 @@ class Game extends Phaser.Game {
                 fullscreenTarget: "content",
             },
             audio: {
-                // xojoc: temporaly disable WebAudio because of a bug on Firefox mobile
+                // xojoc(#5): temporaly disable WebAudio because of a bug on Firefox mobile
                 disableWebAudio: true,
             },
             type: Phaser.CANVAS,
@@ -171,7 +171,7 @@ class GameScene extends Phaser.Scene {
         //        this.sound.volume = 0.1
 
 
-        this.scoreText = this.add.text(ScreenWidth - 6, 4, `${this.score}/${this.highestScore}`)
+        this.scoreText = this.add.text(ScreenWidth - 10, 10, `${this.score}/${this.highestScore}`)
             .setFontFamily('Serif')
             .setFontSize(50)
             .setColor('#ffffff')
