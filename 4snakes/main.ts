@@ -47,8 +47,8 @@ class Preloader extends Phaser.Scene {
 
     preload() {
         Games2d.preload(this)
-        this.load.audio('game_over', 'assets/game_over.wav')
-        this.load.audio('eat1', 'assets/eat1.wav')
+        this.load.audio('game_over', 'assets/game_over.ogg')
+        this.load.audio('eat1', 'assets/eat1.ogg')
     }
 
     create() {
@@ -90,6 +90,7 @@ class Snake extends Phaser.GameObjects.Graphics {
     render_frame: number;
     left_eye: Phaser.GameObjects.Arc;
     right_eye: Phaser.GameObjects.Arc;
+    rendered_atleast_once: boolean;
     constructor(config: SnakeConfig) {
         super(config.game_scene, {})
         config.game_scene.add.existing(this)
@@ -151,15 +152,20 @@ class Snake extends Phaser.GameObjects.Graphics {
         let input_received = false
         let left_side_touch = false
         let right_side_touch = false
-        let pointer = this.config.game_scene.input.activePointer
-        if (pointer.isDown &&
-            pointer.y > 70 * Scale) {
-            if (pointer.x < ScreenWidth / 2) {
-                left_side_touch = true
-            } else {
-                right_side_touch = true
+        let check_touch = (p: Phaser.Input.Pointer) => {
+            if (p.isDown &&
+                p.y > 70 * Scale) {
+                if (p.x < ScreenWidth / 2) {
+                    left_side_touch = true
+                } else {
+                    right_side_touch = true
+                }
             }
         }
+        check_touch(this.config.game_scene.input.pointer1)
+        check_touch(this.config.game_scene.input.pointer2)
+        check_touch(this.config.game_scene.input.pointer3)
+
         if (this.config.game_scene.cursors.left.isDown ||
             this.config.game_scene.a_key.isDown ||
             left_side_touch) {
@@ -180,6 +186,7 @@ class Snake extends Phaser.GameObjects.Graphics {
         if (!this.snake_is_active) {
             return
         }
+        this.rendered_atleast_once = false
 
         //        let input_received = this.handle_input()
         this.handle_input()
@@ -276,6 +283,9 @@ class Snake extends Phaser.GameObjects.Graphics {
             this.tail[1].y
             + distance * Math.sin(eyes_angle))
         this.right_eye.setRotation(eyes_angle)
+
+
+        this.rendered_atleast_once = true
     }
 }
 
@@ -290,7 +300,7 @@ class Snakes extends Phaser.GameObjects.Graphics {
             start_angle: 0,
             head: new Rt(51 * Scale, 50 * Scale, 10 * Scale, 10 * Scale),
             velocity: new Pt(3 * Scale, 3 * Scale),
-            acceleration: new Pt(0.2 * Scale, 0.2 * Scale),
+            acceleration: new Pt(0.14 * Scale, 0.14 * Scale),
             num: 0,
             turn_angle: Math.PI / 18,
             turn_angle_idle: Math.PI / 120,
@@ -302,7 +312,7 @@ class Snakes extends Phaser.GameObjects.Graphics {
             start_angle: Math.PI / 2,
             head: new Rt(ScreenWidth - 70 * Scale, 51 * Scale, 10 * Scale, 10 * Scale),
             velocity: new Pt(3 * Scale, 3 * Scale),
-            acceleration: new Pt(0.2 * Scale, 0.2 * Scale),
+            acceleration: new Pt(0.14 * Scale, 0.14 * Scale),
             num: 1,
             turn_angle: Math.PI / 18,
             turn_angle_idle: Math.PI / 120,
@@ -314,7 +324,7 @@ class Snakes extends Phaser.GameObjects.Graphics {
             start_angle: Math.PI,
             head: new Rt(ScreenWidth - 73 * Scale, ScreenHeight - 70 * Scale, 10 * Scale, 10 * Scale),
             velocity: new Pt(3 * Scale, 3 * Scale),
-            acceleration: new Pt(0.2 * Scale, 0.2 * Scale),
+            acceleration: new Pt(0.14 * Scale, 0.14 * Scale),
             num: 2,
             turn_angle: Math.PI / 18,
             turn_angle_idle: Math.PI / 120,
@@ -326,7 +336,7 @@ class Snakes extends Phaser.GameObjects.Graphics {
             start_angle: 3 * Math.PI / 2,
             head: new Rt(50 * Scale, ScreenHeight - 51 * Scale, 10 * Scale, 10 * Scale),
             velocity: new Pt(3 * Scale, 3 * Scale),
-            acceleration: new Pt(0.2 * Scale, 0.2 * Scale),
+            acceleration: new Pt(0.14 * Scale, 0.14 * Scale),
             num: 3,
             turn_angle: Math.PI / 18,
             turn_angle_idle: Math.PI / 120,
@@ -349,6 +359,14 @@ class Snakes extends Phaser.GameObjects.Graphics {
     }
     render() {
         for (let snake of this.snakes) {
+            if (snake.rendered_atleast_once) {
+                if (snake.config.game_scene.menu.isPaused()) {
+                    continue
+                }
+                if (!snake.snake_is_active) {
+                    continue
+                }
+            }
             snake.render()
         }
     }
@@ -555,6 +573,7 @@ class GameScene extends Phaser.Scene {
 
 
     create() {
+        this.input.addPointer(2)
         this.frame_lag = 0
         this.state = GameState.FirstScreen
         this.score = 0

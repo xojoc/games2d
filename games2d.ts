@@ -203,7 +203,7 @@ export namespace Games2d {
             this.updateVolumeText()
 
 
-            x += 65
+            x += 70
 
 
             this.icons['plus'] = sprite(x, 9 * 6 + 2)
@@ -211,7 +211,7 @@ export namespace Games2d {
                 this.modifyVolumeBy(0.1)
             })
 
-            x += 60
+            x += 70
 
             this.icons['mute'] = sprite(x, 14 * 6 + 2)
             this.icons['mute'].on('pointerup', () => {
@@ -223,7 +223,7 @@ export namespace Games2d {
                 this.toggleMute()
             })
 
-            x += 60
+            x += 70
 
             this.icons['pause'] = sprite(x, 11 * 6 + 2)
             this.icons['pause'].on('pointerup', () => {
@@ -243,7 +243,7 @@ export namespace Games2d {
                         })
             */
 
-            x += 65
+            x += 70
 
             this.icons['fullscreen_on'] = sprite(x, 9 * 6 + 3)
             this.icons['fullscreen_on'].on('pointerup', () => {
@@ -254,6 +254,14 @@ export namespace Games2d {
             this.icons['fullscreen_off'] = sprite(x, 11 * 6 + 1)
             this.icons['fullscreen_off'].on('pointerup', () => {
                 this.toggleFullscreen()
+            })
+
+
+            x += 70
+
+            this.icons['home'] = sprite(x, 16 * 6 + 3)
+            this.icons['home'].on('pointerup', () => {
+                window.location.href = '../'
             })
 
             this.icons['pause'].setVisible(!this.paused)

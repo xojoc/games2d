@@ -10,9 +10,9 @@
 	  "strictPropertyInitialization": false,
 	  "incremental": true,
 	  "tsBuildInfoFile": "/tmp/games2d_incremental_tsc.json",
-	  "inlineSourceMap": true,
-	  "inlineSources": true,
 	  "preserveConstEnums": true,
-	  "skipLibCheck": true
+		"skipLibCheck": true,
+		"sourceMap": true
+    
   }
 }

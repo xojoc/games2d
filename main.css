@@ -4,7 +4,9 @@
 body {
 	margin-top: 2px;
     font-size: 24px;
-/* 	margin: 1px; */
+	/* 	margin: 1px; */
+	background-color: #222;
+	color: #fff;
 }
 #content {
 /*	height: auto !important;  */
@@ -37,13 +39,14 @@ body {
   
   grid-auto-rows: auto;
   grid-gap: 10px;
-  background-color: #fff;
+/*  background-color: #fff; */
   color: #444;
 }
 
 
 .game {
-  background-color: #444;
+	/*  background-color: #444; */
+	background-color: #335;
     color: #fff; 
   
 /*		color: #2A5DB0; */
@@ -57,19 +60,19 @@ body {
 /*	text-decoration: underline; */
 	color: #fff;
 	font-weight: bold;
-	text-shadow: 1px 0 black;
+	text-shadow: 2px 2px 1px black;
 }
 
 .game a:link {
 	color: #fff;
 	font-weight: bold;
-	text-shadow: 1px 0 black;
+	text-shadow: 2px 2px 1px black;
 }
 
 .game a:visited {
 	color: #fff;
 	font-weight: bold;
-	text-shadow: 1px 0 black;
+	text-shadow: 2px 2px 1px black;
 }
 
 .buy {
