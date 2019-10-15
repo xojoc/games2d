@@ -583,7 +583,6 @@ class GameScene extends Phaser.Scene {
         this.a_key = this.input.keyboard.addKey('a')
         this.d_key = this.input.keyboard.addKey('d')
 
-        this.sound.volume = 0.1
         this.game_over_sound = this.sound.add('game_over')
         this.eat_sound = this.sound.add('eat1')
 
