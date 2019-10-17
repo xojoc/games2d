@@ -1,7 +1,10 @@
+export default null;
+//// xojoc: see https://github.com/microsoft/TypeScript/issues/14877
+
 // copyright: AGPLv3 or later
 
-//// xojoc: see https://github.com/microsoft/TypeScript/issues/14877
-export default null
+
+
 
 // variable `filesToCache` will be added at the beginning of this file by files_to_cache.sh
 let FILES_TO_CACHE;
