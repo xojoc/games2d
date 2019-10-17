@@ -10,8 +10,11 @@ compile:
 
 files_to_cache_array:
 	$(eval temp_file := $(shell mktemp))
-	bash files_to_cache.sh | cat /dev/stdin dist/service_worker.js > $(temp_file)
-	mv $(temp_file) dist/service_worker.js
+	$(eval temp_file2 := $(shell mktemp))
+	bash files_to_cache.sh > $(temp_file)
+	cat dist/service_worker.js | sed '/FILES_TO_CACHE/r $(temp_file)' > $(temp_file2)
+	mv $(temp_file2) dist/service_worker.js
+	rm $(temp_file)
 
 copy: 
 	mkdir -p dist

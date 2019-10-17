@@ -1,11 +1,11 @@
 // copyright: AGPLv3 or later
 
-
+//// xojoc: see https://github.com/microsoft/TypeScript/issues/14877
+export default null
 
 // variable `filesToCache` will be added at the beginning of this file by files_to_cache.sh
+let FILES_TO_CACHE;
 
-// xojoc: see https://github.com/microsoft/TypeScript/issues/14877
-export default null
 declare var self: ServiceWorkerGlobalScope;
 
 declare let filesToCache: { [key: string]: string[] };
@@ -39,6 +39,7 @@ self.addEventListener('install', (e) => {
     } else {
         files = filesToCache[gameName]
     }
+    // remove duplicates
     files = files.filter(function(elem, index, self) {
         return index === self.indexOf(elem);
     })
