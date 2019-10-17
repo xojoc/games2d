@@ -652,6 +652,8 @@ Press:
         if (!this.menu.isMute()) {
             this.game_over_sound.play()
         }
+        Games2d.vibrate([100, 50, 200, 50, 300, 50, 70, 30, 50, 20, 50, 20])
+
         this.snakes.snakes[snake_number].left_eye.destroy()
         this.snakes.snakes[snake_number].right_eye.destroy()
 

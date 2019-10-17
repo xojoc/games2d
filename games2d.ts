@@ -70,10 +70,10 @@ export namespace Games2d {
             } catch {
             }
             if (obj) {
-                this.paused = obj.paused
+                //                this.paused = obj.paused
                 this.fullscreen = obj.fullscreen
-                this.mute = obj.mute
-                this.config.scene.sound.mute = obj.mute
+                //  this.mute = obj.mute
+                //                this.config.scene.sound.mute = obj.mute
                 if (typeof (obj.volume) !== 'undefined') {
                     this.config.scene.sound.volume = obj.volume
                 }
