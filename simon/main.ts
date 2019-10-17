@@ -210,7 +210,6 @@ class GameScene extends Phaser.Scene {
         if (!this.menu.isMute()) {
             this.notes[i].play()
         }
-        Games2d.vibrate(30)
         this.flashing = true
         this.time.delayedCall(this.flashingDuration, () => {
             this.quadrants[i].setFillStyle(colors[i])
@@ -224,7 +223,7 @@ class GameScene extends Phaser.Scene {
         if (!this.menu.isMute()) {
             this.loseSound.play()
         }
-        Games2d.vibrate([100, 50, 200, 50, 300, 50, 70, 30, 50, 20, 50, 20])
+        //        Games2d.vibrate([100, 50, 200, 50, 300, 50, 70, 30, 50, 20, 50, 20])
         this.gameOverRectangle.setVisible(true)
         this.state = GameState.GameOver
         this.time.delayedCall(this.gameOverDuration,
