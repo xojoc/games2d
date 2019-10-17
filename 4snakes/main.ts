@@ -149,6 +149,7 @@ class Snake extends Phaser.GameObjects.Graphics {
         }
     }
     handle_input(): boolean {
+        let gs = this.config.game_scene
         let input_received = false
         let left_side_touch = false
         let right_side_touch = false
@@ -162,19 +163,23 @@ class Snake extends Phaser.GameObjects.Graphics {
                 }
             }
         }
-        check_touch(this.config.game_scene.input.pointer1)
-        check_touch(this.config.game_scene.input.pointer2)
-        check_touch(this.config.game_scene.input.pointer3)
+        check_touch(gs.input.activePointer)
+        check_touch(gs.input.pointer1)
+        check_touch(gs.input.pointer2)
+        check_touch(gs.input.pointer3)
 
-        if (this.config.game_scene.cursors.left.isDown ||
-            this.config.game_scene.a_key.isDown ||
+
+        if ((gs.cursors.left &&
+            gs.cursors.left.isDown) ||
+            gs.a_key.isDown ||
             left_side_touch) {
 
             this.snake_angle -= this.config.turn_angle
             input_received = true
         }
-        if (this.config.game_scene.cursors.right.isDown ||
-            this.config.game_scene.d_key.isDown ||
+        if ((gs.cursors.right &&
+            gs.cursors.right.isDown) ||
+            gs.d_key.isDown ||
             right_side_touch) {
 
             this.snake_angle += this.config.turn_angle
@@ -681,8 +686,10 @@ Press:
             this.state == GameState.GameOver) {
             if (this.a_key.isDown ||
                 this.d_key.isDown ||
-                this.cursors.left.isDown ||
-                this.cursors.right.isDown ||
+                (this.cursors.left &&
+                    this.cursors.left.isDown) ||
+                (this.cursors.right &&
+                    this.cursors.right.isDown) ||
                 (this.input.activePointer.isDown &&
                     this.input.activePointer.y > 70 * Scale)) {
                 if (this.state == GameState.GameOver &&

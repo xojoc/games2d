@@ -50,7 +50,8 @@ class Preloader extends Phaser.Scene {
     }
 }
 
-const colors = [0x243757, 0xCD5C5C, 0xBDDA57, 0x2b2b2b]
+const colors = [0x243757, 0xCD5C5C, 0xBDDA57, 0x4c4c4c]
+//0x2b2b2b]
 
 enum GameState {
     StartScreen,

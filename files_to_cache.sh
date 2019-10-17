@@ -1,6 +1,6 @@
 #/usr/bin/env bash
 
-echo 'var filesToCache = {'
+echo 'let filesToCache = {'
 
 rootDir="/games2d/"
 

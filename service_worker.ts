@@ -1,11 +1,18 @@
 // copyright: AGPLv3 or later
 
+
+
 // variable `filesToCache` will be added at the beginning of this file by files_to_cache.sh
 
+// xojoc: see https://github.com/microsoft/TypeScript/issues/14877
+export default null
+declare var self: ServiceWorkerGlobalScope;
+
+declare let filesToCache: { [key: string]: string[] };
 
 // offline handling for all games
 
-let CacheName = "games2d-v13"
+let CacheName = "games2d-v14"
 
 interface StringMap {
     [key: string]: string

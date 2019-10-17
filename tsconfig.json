@@ -1,7 +1,7 @@
 {
   "compileOnSave": true,
 	"compilerOptions": {
-	  "lib": ["es2017", "dom"],
+		"lib": ["es2017", "dom", "webworker"],
 	  "allowJs": false,
       "target": "es6",
       "outDir": "dist",

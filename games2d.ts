@@ -4,7 +4,7 @@
 export namespace Games2d {
     // Detect if our PWA is installed on user's device
     export function isInstalled() {
-        return window.navigator.standalone == true ||
+        return (window.navigator as any).standalone == true ||
             window.matchMedia('(display-mode: standalone)').matches
     }
     export function vibrate(pattern: number | number[]) {
@@ -32,6 +32,8 @@ export namespace Games2d {
         private fullscreen: boolean;
         private readonly storageKey = 'games2d-menu';
         volumeText: Phaser.GameObjects.Text;
+        lowerVolumeEvent: Phaser.Time.TimerEvent;
+        raiseVolumeEvent: Phaser.Time.TimerEvent;
         constructor(config: Games2dMenuConfig) {
             super(config.scene, "games2d menu")
             config.scene.add.existing(this)
@@ -96,6 +98,7 @@ export namespace Games2d {
         private modifyVolumeBy(d: number) {
             this.config.scene.sound.volume = Phaser.Math.Clamp(this.config.scene.sound.volume + d, 0, 1)
             this.updateVolumeText()
+            this.saveData()
         }
 
         private toggleMute() {
@@ -187,18 +190,26 @@ export namespace Games2d {
             }
 
             this.icons['minus'] = sprite(x, 19 * 6 + 2)
-            this.icons['minus'].on('pointerup', () => {
+            this.icons['minus'].on('pointerdown', () => {
                 this.modifyVolumeBy(-0.1)
+                this.lowerVolumeEvent = this.config.scene.time.addEvent({
+                    delay: 200,
+                    callback: () => { this.modifyVolumeBy(-0.1) }, callbackScope: this, loop: true
+                });
             })
+            this.icons['minus'].on('pointerup', () => {
+                this.lowerVolumeEvent.destroy()
+            })
+
 
             x += 85
 
 
-            this.volumeText = this.config.scene.add.text(x, 30, '')
-                .setFontSize(30) // 45
+            this.volumeText = this.config.scene.add.text(x + 75, 30, '')
+                .setFontSize(30)
                 .setAlpha(0.5)
-                .setAlign('center')
                 .setFontStyle('bold')
+                .setOrigin(1, 0)
 
             this.updateVolumeText()
 
@@ -207,33 +218,44 @@ export namespace Games2d {
 
 
             this.icons['plus'] = sprite(x, 9 * 6 + 2)
-            this.icons['plus'].on('pointerup', () => {
+            this.icons['plus'].on('pointerdown', () => {
                 this.modifyVolumeBy(0.1)
+                this.raiseVolumeEvent = this.config.scene.time.addEvent({
+                    delay: 200,
+                    callback: () => { this.modifyVolumeBy(0.1) }, callbackScope: this, loop: true
+                });
+            })
+            this.icons['plus'].on('pointerup', () => {
+                this.raiseVolumeEvent.destroy()
             })
 
-            x += 70
+            /*
+                        x += 70
+            
+                        this.icons['mute'] = sprite(x, 14 * 6 + 2)
+                        this.icons['mute'].on('pointerup', () => {
+                            this.toggleMute()
+                        })
+            
+                        this.icons['unmute'] = sprite(x, 15 * 6 + 2)
+                        this.icons['unmute'].on('pointerup', () => {
+                            this.toggleMute()
+                        })
+            */
 
-            this.icons['mute'] = sprite(x, 14 * 6 + 2)
-            this.icons['mute'].on('pointerup', () => {
-                this.toggleMute()
-            })
-
-            this.icons['unmute'] = sprite(x, 15 * 6 + 2)
-            this.icons['unmute'].on('pointerup', () => {
-                this.toggleMute()
-            })
-
-            x += 70
-
-            this.icons['pause'] = sprite(x, 11 * 6 + 2)
-            this.icons['pause'].on('pointerup', () => {
-                this.togglePause()
-            })
-
-            this.icons['play'] = sprite(x, 3 * 6 + 2)
-            this.icons['play'].on('pointerup', () => {
-                this.togglePause()
-            })
+            /*
+                        x += 70
+            
+                        this.icons['pause'] = sprite(x, 11 * 6 + 2)
+                        this.icons['pause'].on('pointerup', () => {
+                            this.togglePause()
+                        })
+            
+                        this.icons['play'] = sprite(x, 3 * 6 + 2)
+                        this.icons['play'].on('pointerup', () => {
+                            this.togglePause()
+                        })
+            */
             /*
                         x += 60
             
@@ -243,7 +265,7 @@ export namespace Games2d {
                         })
             */
 
-            x += 70
+            x += 80
 
             this.icons['fullscreen_on'] = sprite(x, 9 * 6 + 3)
             this.icons['fullscreen_on'].on('pointerup', () => {
@@ -257,21 +279,21 @@ export namespace Games2d {
             })
 
 
-            x += 70
+            x += 95
 
             this.icons['home'] = sprite(x, 16 * 6 + 3)
             this.icons['home'].on('pointerup', () => {
                 window.location.href = '../'
             })
 
-            this.icons['pause'].setVisible(!this.paused)
-            this.icons['play'].setVisible(this.paused)
-            this.icons['mute'].setVisible(!this.mute)
-            this.icons['unmute'].setVisible(this.mute)
+            //            this.icons['pause'].setVisible(!this.paused)
+            //            this.icons['play'].setVisible(this.paused)
+            //            this.icons['mute'].setVisible(!this.mute)
+            //          this.icons['unmute'].setVisible(this.mute)
             this.icons['fullscreen_on'].setVisible(!this.fullscreen)
             this.icons['fullscreen_off'].setVisible(this.fullscreen)
 
-            this.config.scene.input.keyboard.on('keydown', (event) => {
+            this.config.scene.input.keyboard.on('keydown', (event: any) => {
                 switch (event.key) {
                     case "r":
                     case "n":

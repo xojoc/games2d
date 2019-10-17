@@ -60,19 +60,19 @@ body {
 /*	text-decoration: underline; */
 	color: #fff;
 	font-weight: bold;
-	text-shadow: 2px 2px 1px black;
+	text-shadow: 3px 3px 1px black;
 }
 
 .game a:link {
 	color: #fff;
 	font-weight: bold;
-	text-shadow: 2px 2px 1px black;
+	text-shadow: 3px 3px 1px black;
 }
 
 .game a:visited {
 	color: #fff;
 	font-weight: bold;
-	text-shadow: 2px 2px 1px black;
+	text-shadow: 3px 3px 1px black;
 }
 
 .buy {
@@ -81,6 +81,12 @@ body {
 	text-decoration: none !important;
 	cursor: pointer;
 	font-size: 33px;
+	border-radius: 10px;
+	margin-top: 2px;
+}
+
+.buy:hover{
+	color: #fff;
 }
 
 #header a {
@@ -90,6 +96,7 @@ body {
 a {
     text-decoration: none;
     color: #2A5DB0;
+	font-weight: bold;
 }
 
 

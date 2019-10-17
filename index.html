@@ -22,7 +22,7 @@
 	<div class="games">
 	  <div class="game"><a href="4snakes">4snakes</a></div>
 	    <div class="game"><a href="simon">Simon</a></div>
-<div class="game">Enjoying the games? Support their development by <button id="checkout-link-STRIPE_SKU" class=buy>donating!</button></div>
+<div class="game">Enjoying the games? Support their development by donating!<br/><button id="checkout-link-G2D_STRIPE_SKU_2" class=buy>2€</button> <button id="checkout-link-G2D_STRIPE_SKU_5" class=buy>5€</button> <button id="checkout-link-G2D_STRIPE_SKU_10" class=buy>10€</button></div>
   <div class="game">Others coming...</div>
 </div>
 	<p>Made by <a href="https://xojoc.pw" title="My website">Alexandru Cojocaru</a>.</p>
@@ -31,25 +31,60 @@
 
 		<script>
 (function() {
-	var stripe = Stripe('STRIPE_PUBLIC_KEY');
-  var checkoutLink = document.getElementById('checkout-link-STRIPE_SKU');
-  checkoutLink.addEventListener('click', function () {
+	var stripe = Stripe('G2D_STRIPE_PUBLIC_KEY');
+  var checkoutLink2 = document.getElementById('checkout-link-G2D_STRIPE_SKU_2');
+  checkoutLink2.addEventListener('click', function () {
     stripe.redirectToCheckout({
-		items: [{sku: 'STRIPE_SKU',
+		items: [{sku: 'G2D_STRIPE_SKU_2',
 				 quantity: 1}],
       successUrl: 'https://xojoc.pw/games2d/thanks',
       cancelUrl: 'https://xojoc.pw/games2d/',
     })
     .then(function (result) {
       if (result.error) {
-        // If `redirectToCheckout` fails due to a browser or network
-        // error, display the localized error message to your customer.
         var displayError = document.getElementById('error-message');
         displayError.textContent = result.error.message;
       }
     });
   });
+
+	  var checkoutLink5 = document.getElementById('checkout-link-G2D_STRIPE_SKU_5');
+  checkoutLink5.addEventListener('click', function () {
+    stripe.redirectToCheckout({
+		items: [{sku: 'G2D_STRIPE_SKU_5',
+				 quantity: 1}],
+      successUrl: 'https://xojoc.pw/games2d/thanks',
+      cancelUrl: 'https://xojoc.pw/games2d/',
+    })
+    .then(function (result) {
+      if (result.error) {
+        var displayError = document.getElementById('error-message');
+        displayError.textContent = result.error.message;
+      }
+    });
+  });
+
+	  var checkoutLink10 = document.getElementById('checkout-link-G2D_STRIPE_SKU_10');
+  checkoutLink10.addEventListener('click', function () {
+    stripe.redirectToCheckout({
+		items: [{sku: 'G2D_STRIPE_SKU_10',
+				 quantity: 1}],
+      successUrl: 'https://xojoc.pw/games2d/thanks',
+      cancelUrl: 'https://xojoc.pw/games2d/',
+    })
+    .then(function (result) {
+      if (result.error) {
+        var displayError = document.getElementById('error-message');
+        displayError.textContent = result.error.message;
+      }
+    });
+  });
+
+
+	
 })();
+
+		  
 </script>
   </body>
 </html>
