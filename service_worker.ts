@@ -1,4 +1,4 @@
-export default null;
+export default null
 //// xojoc: see https://github.com/microsoft/TypeScript/issues/14877
 
 // copyright: AGPLv3 or later

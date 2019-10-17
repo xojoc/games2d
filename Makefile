@@ -12,7 +12,7 @@ files_to_cache_array:
 	$(eval temp_file := $(shell mktemp))
 	$(eval temp_file2 := $(shell mktemp))
 	bash files_to_cache.sh > $(temp_file)
-	cat dist/service_worker.js | sed '/FILES_TO_CACHE/r $(temp_file)' > $(temp_file2)
+	cat dist/service_worker.js | sed '/FILES_TO_CACHE/r $(temp_file)' | sed 's/export default null//' > $(temp_file2)
 	mv $(temp_file2) dist/service_worker.js
 	rm $(temp_file)
 
