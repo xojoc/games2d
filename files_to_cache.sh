@@ -28,6 +28,11 @@ do
 		echo "	\"${rootDir}$file\","
 	done
 
+	for file in assets/*
+	do
+		echo "	\"${rootDir}$file\","
+	done
+	
 	for file in $game/assets/*
 	do
 		echo "	\"${rootDir}$file\","
