@@ -1,6 +1,6 @@
 # games2d
 
-*games2d* is a collection of simple 2d games written in Typescript using the [Phaser3](https://phaser.io) library.
+*games2d* is a collection of simple 2d games written in Typescript using the [Phaser3](https://phaser.io) library. Being a [PWA](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps) the games are installable on user's device.
 
 # Play
 
