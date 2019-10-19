@@ -76,6 +76,8 @@ export namespace Games2d {
                 //                this.config.scene.sound.mute = obj.mute
                 if (typeof (obj.volume) !== 'undefined') {
                     this.config.scene.sound.volume = obj.volume
+                } else {
+                    this.config.scene.sound.volume = 0.4
                 }
             } else {
                 this.paused = false
