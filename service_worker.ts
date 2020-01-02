@@ -12,7 +12,7 @@ declare let filesToCache: { [key: string]: string[] };
 
 // offline handling for all games
 
-let CacheName = "games2d-v15"
+let CacheName = "games2d-v16"
 
 interface StringMap {
     [key: string]: string
