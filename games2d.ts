@@ -44,7 +44,7 @@ export namespace Games2d {
         }
 
         public isMute(): boolean {
-            return this.mute
+            return this.mute || this.config.scene.sound.volume <= 0.04
         }
         public isPaused(): boolean {
             return this.paused
@@ -70,20 +70,23 @@ export namespace Games2d {
             } catch {
             }
             if (obj) {
-                //                this.paused = obj.paused
                 this.fullscreen = obj.fullscreen
-                //  this.mute = obj.mute
-                //                this.config.scene.sound.mute = obj.mute
                 if (typeof (obj.volume) !== 'undefined') {
                     this.config.scene.sound.volume = obj.volume
                 } else {
-                    this.config.scene.sound.volume = 0.4
+                    this.config.scene.sound.volume = 0.1
                 }
             } else {
                 this.paused = false
                 this.fullscreen = false
                 this.mute = false
                 this.config.scene.sound.mute = false
+                this.config.scene.sound.volume = 0.1
+                if (this.config.scene.sound.volume != 0.1) {
+                    // xojoc: due to a bug in Firefox mobile, volume change doesn't work. Disable sound.
+                    this.mute = true
+                    this.config.scene.sound.mute = true
+                }
             }
         }
 
@@ -98,7 +101,18 @@ export namespace Games2d {
         }
 
         private modifyVolumeBy(d: number) {
+            let previous_volume = this.config.scene.sound.volume
             this.config.scene.sound.volume = Phaser.Math.Clamp(this.config.scene.sound.volume + d, 0, 1)
+
+            if (previous_volume > 0.0 &&
+                previous_volume < 100.0 &&
+                d != 0.0 &&
+                previous_volume == this.config.scene.sound.volume) {
+                // xojoc: due to a bug in Firefox mobile, volume change doesn't work. Disable sound.
+                this.mute = true
+                this.config.scene.sound.mute = true
+            }
+
             this.updateVolumeText()
             this.saveData()
         }
@@ -231,42 +245,6 @@ export namespace Games2d {
                 this.raiseVolumeEvent.destroy()
             })
 
-            /*
-                        x += 70
-            
-                        this.icons['mute'] = sprite(x, 14 * 6 + 2)
-                        this.icons['mute'].on('pointerup', () => {
-                            this.toggleMute()
-                        })
-            
-                        this.icons['unmute'] = sprite(x, 15 * 6 + 2)
-                        this.icons['unmute'].on('pointerup', () => {
-                            this.toggleMute()
-                        })
-            */
-
-            /*
-                        x += 70
-            
-                        this.icons['pause'] = sprite(x, 11 * 6 + 2)
-                        this.icons['pause'].on('pointerup', () => {
-                            this.togglePause()
-                        })
-            
-                        this.icons['play'] = sprite(x, 3 * 6 + 2)
-                        this.icons['play'].on('pointerup', () => {
-                            this.togglePause()
-                        })
-            */
-            /*
-                        x += 60
-            
-                        this.icons['restart'] = sprite(x, 5 * 6 + 2)
-                        this.icons['restart'].on('pointerup', () => {
-                            this.restart()
-                        })
-            */
-
             x += 80
 
             this.icons['fullscreen_on'] = sprite(x, 9 * 6 + 3)
@@ -288,10 +266,7 @@ export namespace Games2d {
                 window.location.href = '../'
             })
 
-            //            this.icons['pause'].setVisible(!this.paused)
-            //            this.icons['play'].setVisible(this.paused)
-            //            this.icons['mute'].setVisible(!this.mute)
-            //          this.icons['unmute'].setVisible(this.mute)
+
             this.icons['fullscreen_on'].setVisible(!this.fullscreen)
             this.icons['fullscreen_off'].setVisible(this.fullscreen)
 
@@ -315,8 +290,3 @@ export namespace Games2d {
         }
     }
 }
-
-
-
-
-
