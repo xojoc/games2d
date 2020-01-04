@@ -32,10 +32,6 @@ class Game extends Phaser.Game {
                 mode: Phaser.Scale.FIT,
                 fullscreenTarget: "content",
             },
-            audio: {
-                // xojoc(#5): temporaly disable WebAudio because of a bug on Firefox mobile
-                disableWebAudio: true,
-            },
             type: Phaser.CANVAS,
         }
         super(config)
@@ -624,7 +620,7 @@ class GameScene extends Phaser.Scene {
 OR
 Click on the left/right side of the screen
 
-Press: 
+Press:
  r - to restart
  m - to mute/unmute
  p - to pause/unpause
