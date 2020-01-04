@@ -28,6 +28,7 @@ export namespace Games2d {
         private config: Games2dMenuConfig;
         private icons: { [key: string]: Phaser.GameObjects.Sprite };
         private mute: boolean;
+        private volume: number;
         private paused: boolean;
         private fullscreen: boolean;
         private readonly storageKey = 'games2d-menu';
@@ -43,8 +44,15 @@ export namespace Games2d {
             this.create()
         }
 
+
         public isMute(): boolean {
-            return this.mute || this.config.scene.sound.volume <= 0.04
+            return this.mute
+        }
+        public playSound(sound: Phaser.Sound.BaseSound) {
+            if (this.isMute()) {
+                return
+            }
+            sound.play('', { volume: this.volume })
         }
         public isPaused(): boolean {
             return this.paused
@@ -58,7 +66,7 @@ export namespace Games2d {
                 paused: this.paused,
                 fullscreen: this.fullscreen,
                 mute: this.mute,
-                volume: this.config.scene.sound.volume
+                volume: this.volume
             }
             localStorage.setItem(this.storageKey, JSON.stringify(obj))
         }
@@ -72,21 +80,17 @@ export namespace Games2d {
             if (obj) {
                 this.fullscreen = obj.fullscreen
                 if (typeof (obj.volume) !== 'undefined') {
-                    this.config.scene.sound.volume = obj.volume
+                    this.volume = obj.volume
                 } else {
-                    this.config.scene.sound.volume = 0.1
+                    this.volume = 0.3
                 }
+                this.mute = obj.mute
             } else {
                 this.paused = false
                 this.fullscreen = false
                 this.mute = false
                 this.config.scene.sound.mute = false
-                this.config.scene.sound.volume = 0.1
-                if (this.config.scene.sound.volume != 0.1) {
-                    // xojoc: due to a bug in Firefox mobile, volume change doesn't work. Disable sound.
-                    this.mute = true
-                    this.config.scene.sound.mute = true
-                }
+                this.volume = 0.3
             }
         }
 
@@ -94,25 +98,14 @@ export namespace Games2d {
             if (this.mute) {
                 this.volumeText.text = "mute"
             } else {
-                let n = this.config.scene.sound.volume * 100
+                let n = this.volume * 100
                 n = Math.round(n)
                 this.volumeText.text = n.toString() + "%"
             }
         }
 
         private modifyVolumeBy(d: number) {
-            let previous_volume = this.config.scene.sound.volume
-            this.config.scene.sound.volume = Phaser.Math.Clamp(this.config.scene.sound.volume + d, 0, 1)
-
-            if (previous_volume > 0.0 &&
-                previous_volume < 100.0 &&
-                d != 0.0 &&
-                previous_volume == this.config.scene.sound.volume) {
-                // xojoc: due to a bug in Firefox mobile, volume change doesn't work. Disable sound.
-                this.mute = true
-                this.config.scene.sound.mute = true
-            }
-
+            this.volume = Phaser.Math.Clamp(this.volume + d, 0, 1)
             this.updateVolumeText()
             this.saveData()
         }

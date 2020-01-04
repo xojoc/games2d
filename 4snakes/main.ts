@@ -43,8 +43,8 @@ class Preloader extends Phaser.Scene {
 
     preload() {
         Games2d.preload(this)
-        this.load.audio('game_over', 'assets/game_over.ogg')
-        this.load.audio('eat1', 'assets/eat1.ogg')
+        this.load.audio('game_over', 'assets/game_over.mp3')
+        this.load.audio('eat1', 'assets/eat1.mp3')
     }
 
     create() {
@@ -217,9 +217,7 @@ class Snake extends Phaser.GameObjects.Graphics {
         }
         for (let food of this.config.game_scene.foods.foods) {
             if (Rt.Overlaps(new_cell, food.pos)) {
-                if (!this.config.game_scene.menu.isMute()) {
-                    this.config.game_scene.eat_sound.play()
-                }
+                this.config.game_scene.menu.playSound(this.config.game_scene.eat_sound)
                 this.config.game_scene.snakes.setActiveSnake(food.num)
                 this.config.game_scene.increaseScore(1)
                 this.velocity.x = Math.min(this.velocity.x + this.acceleration.x, 5.3 * Scale)
@@ -645,9 +643,7 @@ Press:
         this.game_over_timestamp = Date.now()
         this.game_over_text.setVisible(true)
         this.state = GameState.GameOver
-        if (!this.menu.isMute()) {
-            this.game_over_sound.play()
-        }
+        this.menu.playSound(this.game_over_sound)
         //        Games2d.vibrate([100, 50, 200, 50, 300, 50, 70, 30, 50, 20, 50, 20])
 
         this.snakes.snakes[snake_number].left_eye.destroy()
@@ -675,8 +671,11 @@ Press:
 
             })
 
-            this.time.delayedCall(1000, function() { emitter.stop() }, [], this)
+            this.time.delayedCall(1000, function() {
+                emitter.stop()
+            }, [], this)
         }
+        square.visible = false
     }
 
     update_frame() {
