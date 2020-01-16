@@ -52,6 +52,9 @@ export namespace Games2d {
             if (this.isMute()) {
                 return
             }
+            if (this.volume <= 0.0001) {
+                return
+            }
             sound.play('', { volume: this.volume })
         }
         public isPaused(): boolean {
