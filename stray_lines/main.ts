@@ -369,7 +369,7 @@ class GameScene extends Phaser.Scene {
             let ballBody = this.matter.add.circle(side.x, side.y, radius) as Matter.Body
 
             let v = new Phaser.Math.Vector2()
-            v.setToPolar(angle, 4)
+            v.setToPolar(angle, 1.7)
             this.matter.add.velocity(ballBody, v)
 
             ballBody.friction = 0
