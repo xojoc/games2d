@@ -1,5 +1,10 @@
-test on ios
 cleanup and delete dead code
+refactor common behaviors:
+  - score, icons, preload, data save, etc.
 
+banner
 
+fix sound levels
 
+upgrade phaser, remove version keep one directory
+fixme: menu

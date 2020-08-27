@@ -86,12 +86,12 @@ class GameScene extends Phaser.Scene {
         if (this.score > this.highestScore) {
             this.highestScore = this.score
             // fixme: sound?
-            this.saveDate()
+            this.saveData()
         }
         this.scoreText.text = `${this.score}/${this.highestScore}`
     }
 
-    saveDate() {
+    saveData() {
         let obj = {
             highestScore: this.highestScore,
         }
