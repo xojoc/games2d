@@ -588,6 +588,7 @@ class GameScene extends Phaser.Scene {
         this.load_data()
 
         this.menu = new Games2d.Menu({ scene: this })
+        this.sound.pauseOnBlur = false
 
 
         this.score_text = this.add.text(ScreenWidth - 6 * Scale, 4 * Scale, `${this.score}/${this.highest_score}`)

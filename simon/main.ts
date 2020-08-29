@@ -144,6 +144,8 @@ class GameScene extends Phaser.Scene {
 
         this.menu = new Games2d.Menu({ scene: this })
 
+        this.sound.pauseOnBlur = false
+
         this.score = 1
         this.state = GameState.StartScreen
         this.generatedSequence = []

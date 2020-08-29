@@ -2,22 +2,19 @@
 
 //// As level increases, change (with clamp)
 ////    target side
-////    number of balls
+////    number of balls (increase number of remaining lines)
 ////    ball radius
 ////    speed of balls
 ////    max length of drawn lines
 
-// fixme: empty drawn lines
+// out of screen line
 // menu: restart
-// after N hits and no lines remaining to draw game over?
-// remaining line border when used
-// fixme: sound delayed if out of focus
-
 
 import { Games2d } from '../games2d.js'
 
 const ScreenWidth = 900
 const ScreenHeight = 900
+const FPS = 40
 
 class Game extends Phaser.Game {
     constructor() {
@@ -27,6 +24,9 @@ class Game extends Phaser.Game {
             width: ScreenWidth,
             height: ScreenHeight,
             scene: [Preloader, GameScene],
+            fps: {
+                target: FPS,
+            },
             scale: {
                 parent: "content",
                 expandParent: true,
@@ -36,7 +36,9 @@ class Game extends Phaser.Game {
             },
             physics: {
                 default: 'matter',
-                matter: { debug: false },
+                matter: {
+                    debug: false,
+                },
             }
         }
         super(config)
@@ -59,7 +61,7 @@ class Preloader extends Phaser.Scene {
     }
 }
 
-const foregroundColors = [0x007FFF, 0xFFFFFF, 0xCD5C5C, 0xBDDA57, 0x4c4c4c]
+const foregroundColors = [0x007FFF, 0xFFFFFF, 0xCD5C5C, 0xBDDA57]
 const backgroundColors = [0x004225, 0x243757, 0x3b1420, 0x2b2b2b, 0x433D54]
 
 enum GameState {
@@ -74,7 +76,7 @@ class GameScene extends Phaser.Scene {
     highScoreBeatenSoundPlayed: boolean;
     scoreText: Phaser.GameObjects.Text
     level: number
-    background_color: any
+    backgroundColor: any
     menu: Games2d.Menu
     gameOverDuration: number
     applauseSound: Phaser.Sound.BaseSound
@@ -88,6 +90,7 @@ class GameScene extends Phaser.Scene {
     remainingLines: Phaser.GameObjects.Rectangle[]
     targets: Phaser.GameObjects.GameObject[]
     firstPointerDownPosition: Phaser.Math.Vector2 | null
+    frameLag: number;
 
     constructor() {
         super('GameScene')
@@ -98,9 +101,9 @@ class GameScene extends Phaser.Scene {
     changeBackgroundColor() {
         while (true) {
             let b = Phaser.Math.RND.pick(backgroundColors)
-            if (b != this.background_color) {
+            if (b != this.backgroundColor) {
                 this.cameras.main.setBackgroundColor(b)
-                this.background_color = b
+                this.backgroundColor = b
                 break
             }
         }
@@ -149,18 +152,20 @@ class GameScene extends Phaser.Scene {
     create() {
         this.loadData()
 
+        this.frameLag = 0
+
         this.menu = new Games2d.Menu({ scene: this })
+
+        this.sound.pauseOnBlur = false
 
         this.score = 0
         this.highScoreBeatenSoundPlayed = false
         this.state = GameState.Playing
-        this.level = 1
+        this.level = 0
 
-        this.userDrawnLineColor = 0x00ff00
-        this.userDrawnLineWidth = 6
-
-
-        this.userDrawnLineMaxLength = 230
+        this.userDrawnLineColor = 0xffffff
+        this.userDrawnLineWidth = 3.3
+        this.userDrawnLineMaxLength = 70 // 110
 
         this.gameOverDuration = 1250
 
@@ -211,16 +216,6 @@ class GameScene extends Phaser.Scene {
             return
         }
 
-        if (this.remainingLines.length == 0) {
-            this.cameras.main.shake(100, 0.005, true)
-            Games2d.vibrate(1000)
-
-            this.firstPointerDownPosition = null
-            if (this.userTemporaryLine) {
-                this.userTemporaryLine.destroy()
-            }
-            return
-        }
 
         let toX = Phaser.Math.Clamp(pointer.position.x, 0, ScreenWidth - 1)
         let toY = Phaser.Math.Clamp(pointer.position.y, 0, ScreenHeight - 1)
@@ -233,7 +228,19 @@ class GameScene extends Phaser.Scene {
         let angle = Phaser.Geom.Line.Angle(geomLine) + ((3 * Math.PI) / 2)
         let len = Math.min(Phaser.Geom.Line.Length(geomLine), this.userDrawnLineMaxLength)
 
-        if (len < 3) {
+        if (len < 7) {
+            this.firstPointerDownPosition = null
+            if (this.userTemporaryLine) {
+                this.userTemporaryLine.destroy()
+            }
+            return
+        }
+
+
+        if (this.remainingLines.length == 0) {
+            this.cameras.main.shake(100, 0.005, true)
+            Games2d.vibrate(1000)
+
             this.firstPointerDownPosition = null
             if (this.userTemporaryLine) {
                 this.userTemporaryLine.destroy()
@@ -297,7 +304,7 @@ class GameScene extends Phaser.Scene {
         this.userTemporaryLine.setActive(true)
 
         this.userTemporaryLine.beginPath()
-        this.userTemporaryLine.lineStyle(10, 0xff0000)
+        this.userTemporaryLine.lineStyle(this.userDrawnLineWidth, 0xa0a0a0)
 
         this.userTemporaryLine.moveTo(
             this.firstPointerDownPosition.x,
@@ -322,21 +329,21 @@ class GameScene extends Phaser.Scene {
         this.userTemporaryLine.strokePath()
     }
 
-    // fixme: don't overlap
     createBalls() {
         if (this.balls) {
             for (let ball of this.balls) {
+                this.matter.world.remove(ball, true)
                 ball.destroy()
             }
         }
 
         this.balls = []
 
-        const radius = 12
+        const radius = 9
 
-        let numberOfBalls = Math.floor(this.level / 3) + 1
+        let numberOfBalls = Math.max(1, Math.floor(Math.sqrt(this.level)))
 
-        for (let i = 0; i < numberOfBalls; i++) {
+        while (this.balls.length < numberOfBalls) {
             let r = Phaser.Math.Between
             let randomSides = [
                 {
@@ -359,7 +366,7 @@ class GameScene extends Phaser.Scene {
 
             let side = Phaser.Math.RND.pick(randomSides)
 
-            let offset = 250
+            let offset = 270
             let angle = Phaser.Math.Angle.BetweenPoints(side,
                 {
                     x: ScreenWidth / 2 + r(-offset, offset),
@@ -369,8 +376,10 @@ class GameScene extends Phaser.Scene {
             let ballBody = this.matter.add.circle(side.x, side.y, radius) as Matter.Body
 
             let v = new Phaser.Math.Vector2()
-            v.setToPolar(angle, 1.7)
-            this.matter.add.velocity(ballBody, v)
+            v.setToPolar(angle, Phaser.Math.RND.realInRange(1.3, 1.8))
+            this.time.delayedCall(this.balls.length * Phaser.Math.RND.integerInRange(2100, 2500), () => {
+                this.matter.add.velocity(ballBody, v)
+            }, [], null)
 
             ballBody.friction = 0
             ballBody.frictionAir = 0
@@ -392,6 +401,23 @@ class GameScene extends Phaser.Scene {
 
             ball.name = "ball"
 
+            let ballsTooNear = false
+
+            for (let otherBall of this.balls) {
+                let ballArc = ball as Phaser.GameObjects.Arc
+                let otherBallArc = otherBall as Phaser.GameObjects.Arc
+                if (ballArc.getCenter().distance(otherBallArc.getCenter()) < radius * 8) {
+                    ballsTooNear = true
+                    break
+                }
+            }
+
+            if (ballsTooNear) {
+                this.matter.world.remove(ball, true)
+                ball.destroy()
+                continue
+            }
+
             this.balls.push(ball as Phaser.GameObjects.Arc)
         }
 
@@ -399,8 +425,6 @@ class GameScene extends Phaser.Scene {
         Phaser.Physics.Matter.Matter.Resolver._restingThresh = 0.001;
     }
 
-    // fixme: don't overlap
-    // fixme: only targets of color
     createTargets() {
         if (this.targets) {
             for (let target of this.targets) {
@@ -408,11 +432,51 @@ class GameScene extends Phaser.Scene {
             }
         }
 
-        let offset = 200
-        let side = 25
+        let offset = 230
+        let side = 26
 
         this.targets = []
 
+        let distinctColors = new Set(this.balls.map(x => x.fillColor))
+
+        for (let color of distinctColors) {
+            let done = false
+            while (!done) {
+                let rect =
+                    this.add.rectangle(
+                        Phaser.Math.RND.integerInRange(offset, ScreenWidth - offset),
+                        Phaser.Math.RND.integerInRange(offset, ScreenHeight - offset),
+                        side, side)
+                        .setActive(true)
+                        .setFillStyle(color)
+
+                let targetsTooNear = false
+
+                for (let otherTarget of this.targets) {
+                    let otherTargetRect = otherTarget as Phaser.GameObjects.Rectangle
+                    if (rect.getCenter().distance(otherTargetRect.getCenter()) < side * 4) {
+                        targetsTooNear = true
+                        break
+                    }
+                }
+
+                if (targetsTooNear) {
+                    rect.destroy()
+                    continue
+                }
+
+
+                let rectPhysics = this.matter.add.gameObject(rect,
+                    {
+                        isStatic: true,
+                    })
+                rectPhysics.name = "target"
+                this.targets.push(rectPhysics)
+                done = true
+            }
+        }
+
+		/*
         for (let ball of this.balls) {
             let rect =
                 this.add.rectangle(
@@ -429,6 +493,7 @@ class GameScene extends Phaser.Scene {
             rectPhysics.name = "target"
             this.targets.push(rectPhysics)
         }
+*/
     }
 
     createRemainingLines() {
@@ -439,9 +504,10 @@ class GameScene extends Phaser.Scene {
         }
 
         this.remainingLines = []
-        for (let i = 0; i < 10; i++) {
+
+        for (let i = 0; i < this.balls.length * 6; i++) {
             let r = this.add.rectangle(
-                ScreenWidth - 17 * (i + 1),
+                5 + 17 * (i + 1),
                 ScreenHeight - 43,
                 this.userDrawnLineWidth,
                 27,
@@ -449,7 +515,6 @@ class GameScene extends Phaser.Scene {
                 .setAngle(13)
                 .setAlpha(0.8)
                 .setOrigin(1, 0)
-
             this.remainingLines.push(r)
         }
     }
@@ -494,10 +559,10 @@ class GameScene extends Phaser.Scene {
             this.changeBackgroundColor()
 
             let ballTyped = ball as Phaser.GameObjects.Arc
-            target = target as Phaser.GameObjects.Rectangle
+            let targetTyped = target as Phaser.GameObjects.Rectangle
 
             // fixme: emitter
-            if (ballTyped.fillColor != target.fillColor) {
+            if (ballTyped.fillColor != targetTyped.fillColor) {
                 this.gameOver()
                 return
             }
@@ -505,19 +570,25 @@ class GameScene extends Phaser.Scene {
             this.increaseScore()
 
             // fixme: particles emitter
+            this.matter.world.remove(ball, true)
             ball.destroy()
             this.balls = this.balls.filter(b => b !== ballTyped)
 
             // Don't destroy the target, just transform it into an obstacle
-            // fixme: tween?
-            target.fillColor = 0x000
+            if (!this.balls.some(b => (b as Phaser.GameObjects.Arc).fillColor == targetTyped.fillColor)) {
+                this.tweens.add({
+                    targets: targetTyped,
+                    fillColor: 0x000,
+                    duration: 200
+                })
+            }
         }
 
         if (ball && userLine ||
             (goA.name == "ball" && goB.name == "ball")) {
 
             this.cameras.main.shake(40, 0.005, false)
-            Games2d.vibrate(30)
+            Games2d.vibrate(100)
         }
     }
 
@@ -530,6 +601,8 @@ class GameScene extends Phaser.Scene {
             this.loseSound.play()
         }
         this.state = GameState.GameOver
+
+        this.cameras.main.flash(100, 100)
         this.cameras.main.fade(this.gameOverDuration * 2 / 3)
         this.time.delayedCall(this.gameOverDuration,
             () => {
@@ -537,7 +610,18 @@ class GameScene extends Phaser.Scene {
             }, [], this)
     }
 
-    update() {
+    update(_: number, delta: number) {
+        let frameDuration = 1000 / FPS
+        if (delta > 1000) {
+            delta = frameDuration
+        }
+        this.frameLag += delta
+        while (this.frameLag >= frameDuration) {
+            this.updateFrame()
+            this.frameLag -= frameDuration
+        }
+    }
+    updateFrame() {
         if (this.state == GameState.GameOver) {
             return
         }
