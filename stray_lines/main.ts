@@ -1,14 +1,10 @@
 //// copyright: AGPLv3 or later
 
-//// As level increases, change (with clamp)
-////    target side
-////    number of balls (increase number of remaining lines)
-////    ball radius
-////    speed of balls
-////    max length of drawn lines
-
 // out of screen line
 // menu: restart
+/// todo:
+//   wobble hit line?
+//   ball trail
 
 import { Games2d } from '../games2d.js'
 
@@ -475,25 +471,6 @@ class GameScene extends Phaser.Scene {
                 done = true
             }
         }
-
-		/*
-        for (let ball of this.balls) {
-            let rect =
-                this.add.rectangle(
-                    Phaser.Math.RND.integerInRange(offset, ScreenWidth - offset),
-                    Phaser.Math.RND.integerInRange(offset, ScreenHeight - offset),
-                    side, side)
-                    .setActive(true)
-                    .setFillStyle(ball.fillColor)
-
-            let rectPhysics = this.matter.add.gameObject(rect,
-                {
-                    isStatic: true,
-                })
-            rectPhysics.name = "target"
-            this.targets.push(rectPhysics)
-        }
-*/
     }
 
     createRemainingLines() {
