@@ -18,33 +18,41 @@ do
 		continue
 	fi
 	echo "\"${game}\": ["
-  
+
 	echo "	\"${rootDir}\","
 	echo "	\"${rootDir}index.html\","
 	echo "	\"${rootDir}main.css\","
 	echo "	\"${rootDir}games2d.js\","
 	echo "	\"${rootDir}manifest.webmanifest\","
 	for file in phaser-*/*; do
-		echo "	\"${rootDir}$file\","
+		if [ -e $file ]; then
+			echo "	\"${rootDir}$file\","
+		fi
 	done
 
 	for file in assets/*
 	do
-		echo "	\"${rootDir}$file\","
+		if [ -e $file ]; then
+			echo "	\"${rootDir}$file\","
+		fi
 	done
-	
+
 	for file in $game/assets/*
 	do
-		echo "	\"${rootDir}$file\","
+		if [ -e $file ]; then
+			echo "	\"${rootDir}$file\","
+		fi
 	done
 
 	for file in $game/*.ts
 	do
-		echo "	\"${rootDir}${file%.ts}.js\","
+		if [ -e $file ]; then
+			echo "	\"${rootDir}${file%.ts}.js\","
+		fi
 	done
 	echo "	\"${rootDir}${game}/index.html\","
 	echo "	\"${rootDir}${game}/\","
 	echo '],'
-done   
+done
 
 echo '}'

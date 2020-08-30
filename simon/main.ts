@@ -37,8 +37,8 @@ class Preloader extends Phaser.Scene {
         this.load.audio('caw', 'assets/caw.ogg')
         this.load.audio('quail', 'assets/quail.ogg')
 
-        this.load.audio('applause', 'assets/applause.ogg')
-        this.load.audio('lose', 'assets/lose.ogg')
+        this.load.audio('applause', '../assets/applause.ogg')
+        this.load.audio('lose', '../assets/lose.ogg')
     }
 
     create() {

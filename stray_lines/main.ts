@@ -46,9 +46,8 @@ class Preloader extends Phaser.Scene {
     preload() {
         Games2d.preload(this)
 
-        // fixme: common assets
-        this.load.audio('applause', 'assets/applause.ogg')
-        this.load.audio('lose', 'assets/lose.ogg')
+        this.load.audio('applause', '../assets/applause.ogg')
+        this.load.audio('lose', '../assets/lose.ogg')
     }
 
     create() {

@@ -1,12 +1,10 @@
 SHELL:=/bin/bash
 
 
-all: compile 4snakes copy files_to_cache_array
+all: compile copy files_to_cache_array
 
 compile:
 	tsc
-
-4snakes:
 
 files_to_cache_array:
 	$(eval temp_file := $(shell mktemp))

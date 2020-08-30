@@ -1,7 +1,5 @@
 // copyright: AGPLv3 or later
 
-///<reference path="games2d.d.ts" />
-
 //// xojoc: see https://github.com/microsoft/TypeScript/issues/14877
 export default null
 
