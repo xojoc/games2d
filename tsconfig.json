@@ -1,18 +1,18 @@
 {
   "compileOnSave": true,
 	"compilerOptions": {
-		"lib": ["es2017", "dom", "webworker"],
+      "lib": ["es2017", "dom", "webworker"],
 	  "allowJs": false,
       "target": "es6",
       "outDir": "dist",
-		"rootDir": "./",
-		        "removeComments": false,
+      "rootDir": "./",
+      "removeComments": false,
 	  "strict": true,
 	  "strictPropertyInitialization": false,
 	  "incremental": true,
 	  "tsBuildInfoFile": "/tmp/games2d_incremental_tsc.json",
 	  "preserveConstEnums": true,
-		"skipLibCheck": true,
-		"sourceMap": true
+      "skipLibCheck": true,
+      "sourceMap": true
   }
 }

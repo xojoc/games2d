@@ -1,11 +1,11 @@
 //// copyright: AGPLv3 or later
 
-
 export namespace Games2d {
     // Detect if our PWA is installed on user's device
     export function isInstalled() {
         return (window.navigator as any).standalone == true ||
-            window.matchMedia('(display-mode: standalone)').matches
+            window.matchMedia('(display-mode: standalone)').matches ||
+            document.referrer.includes('android-app://')
     }
     export function vibrate(pattern: number | number[]) {
         if (isInstalled()) {

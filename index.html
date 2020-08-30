@@ -8,13 +8,40 @@
 	<link rel="stylesheet" href="main.css" type="text/css">
 	<script type="module">
 	  if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service_worker.js?game_name=games2d')
+
+		  let deferredPrompt
+		  let installButton = document.querySelector('#install-button')
+
+		  if (installButton) {
+			  installButton.parentNode.style.display = 'none'
+
+			  window.addEventListener('beforeinstallprompt', (e) => {
+				  let evt = e
+				  evt.preventDefault()
+				  deferredPrompt = evt
+				  installButton.parentNode.style.display = 'block'
+				  installButton.addEventListener('click', (_) => {
+					  installButton.parentNode.style.display = 'none'
+					  if (deferredPrompt) {
+						  deferredPrompt.prompt()
+						  deferredPrompt.userChoice.then((choiceResult) => {
+							  console.log(choiceResult)
+							  deferredPrompt = null;
+						  });
+					  }
+				  })
+			  })
 		  }
+
+		  navigator.serviceWorker.register('service_worker.js?game_name=games2d')
+      }
 	</script>
 	<script src="https://js.stripe.com/v3"></script>
     <link rel="icon" href="assets/games2d_icon.png">
 
-	<link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+	<link
+	  rel="stylesheet"
+	  href="https://fonts.googleapis.com/css?family=Raleway&display=swap">
   </head>
   <body id=games2d>
     <h1><span class=games2d_title_games>games</span><span class=games2d_title_2d>2d</span></h1>
@@ -24,8 +51,10 @@
 	  <div class="game"><a href="stray_lines/">Stray lines</a></div>
 	  <div class="game"><a href="4snakes/">4snakes</a></div>
 	  <div class="game"><a href="simon/">Simon</a></div>
-<div class="game">Enjoying the games? Support their development by donating!<br/><button id="checkout-link-G2D_STRIPE_SKU_2" class=buy>2€</button> <button id="checkout-link-G2D_STRIPE_SKU_5" class=buy>5€</button> <button id="checkout-link-G2D_STRIPE_SKU_10" class=buy>10€</button></div>
-  <div class="game">Others coming...</div>
+	  <div class="game">Enjoying the games? Support their development by donating!<br/><button id="checkout-link-G2D_STRIPE_SKU_2" class=buy>2€</button> <button id="checkout-link-G2D_STRIPE_SKU_5" class=buy>5€</button> <button id="checkout-link-G2D_STRIPE_SKU_10" class=buy>10€</button></div>
+
+	  <div class="game"><button id="install-button">Install</button></div>
+	  <div class="game">Others coming...</div>
 </div>
 	<p>Made by <a href="https://xojoc.pw" title="My website">Alexandru Cojocaru</a>.</p>
 	<p>Get the <a href="https://github.com/xojoc/games2d" title="games2d's source">source code</a>. See the <a href="https://github.com/xojoc/games2d/blob/master/CREDITS.md" title="Credits">CREDITS</a>.</p>
@@ -66,7 +95,7 @@
     });
   });
 
-	  var checkoutLink10 = document.getElementById('checkout-link-G2D_STRIPE_SKU_10');
+  var checkoutLink10 = document.getElementById('checkout-link-G2D_STRIPE_SKU_10');
   checkoutLink10.addEventListener('click', function () {
     stripe.redirectToCheckout({
 		items: [{sku: 'G2D_STRIPE_SKU_10',
@@ -81,12 +110,7 @@
       }
     });
   });
-
-
-
 })();
-
-
 </script>
   </body>
 </html>

@@ -1,6 +1,5 @@
 //// copyright: AGPLv3 or later
 
-// out of screen line
 // menu: restart
 /// todo:
 //   wobble hit line?
@@ -161,7 +160,7 @@ class GameScene extends Phaser.Scene {
 
         this.userDrawnLineColor = 0xffffff
         this.userDrawnLineWidth = 3.3
-        this.userDrawnLineMaxLength = 70 // 110
+        this.userDrawnLineMaxLength = 170 // 110
 
         this.gameOverDuration = 1250
 
@@ -243,7 +242,7 @@ class GameScene extends Phaser.Scene {
 
         if (this.remainingLines.length == 0) {
             this.cameras.main.shake(100, 0.005, true)
-            Games2d.vibrate(1000)
+            Games2d.vibrate([50, 70, 50])
 
             this.firstPointerDownPosition = null
             if (this.userTemporaryLine) {
