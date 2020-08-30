@@ -212,6 +212,8 @@ class GameScene extends Phaser.Scene {
             return
         }
 
+        let fromX = this.firstPointerDownPosition.x
+        let fromY = this.firstPointerDownPosition.y
 
         let toX = Phaser.Math.Clamp(pointer.position.x, 0, ScreenWidth - 1)
         let toY = Phaser.Math.Clamp(pointer.position.y, 0, ScreenHeight - 1)
@@ -224,7 +226,13 @@ class GameScene extends Phaser.Scene {
         let angle = Phaser.Geom.Line.Angle(geomLine) + ((3 * Math.PI) / 2)
         let len = Math.min(Phaser.Geom.Line.Length(geomLine), this.userDrawnLineMaxLength)
 
-        if (len < 7) {
+
+        if (len < 15 ||
+            (toX == 0 && fromX == 0 ||
+                toX == ScreenWidth - 1 && fromX == ScreenWidth - 1 ||
+                toY == 0 && fromY == 0 ||
+                toY == ScreenHeight - 1 && fromY == ScreenHeight - 1)) {
+
             this.firstPointerDownPosition = null
             if (this.userTemporaryLine) {
                 this.userTemporaryLine.destroy()
