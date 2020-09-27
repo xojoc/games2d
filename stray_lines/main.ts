@@ -138,10 +138,10 @@ class GameScene extends Phaser.Scene {
         if (obj) {
             this.highestScore = obj.highestScore
         } else {
-            this.highestScore = 1
+            this.highestScore = 0
         }
         if (!this.highestScore) {
-            this.highestScore = 1
+            this.highestScore = 0
         }
     }
 
