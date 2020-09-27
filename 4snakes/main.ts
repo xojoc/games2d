@@ -22,8 +22,8 @@ class Game extends Phaser.Game {
             height: ScreenHeight,
             scene: [Preloader, GameScene],
             fps: {
-                min: FPS,
                 target: FPS,
+                forceSetTimeOut: true
             },
             scale: {
                 parent: "content",

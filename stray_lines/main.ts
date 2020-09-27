@@ -4,6 +4,8 @@
 /// todo:
 //   wobble hit line?
 //   ball trail
+//   more foreground colors
+//   destroy lines?
 
 import { Games2d } from '../games2d.js'
 
@@ -21,6 +23,7 @@ class Game extends Phaser.Game {
             scene: [Preloader, GameScene],
             fps: {
                 target: FPS,
+                forceSetTimeOut: true
             },
             scale: {
                 parent: "content",
@@ -343,7 +346,10 @@ class GameScene extends Phaser.Scene {
 
         const radius = 9
 
-        let numberOfBalls = Math.max(1, Math.floor(Math.sqrt(this.level)))
+        let numberOfBalls = Math.max(1, Math.floor(Math.sqrt(this.level - 3)))
+        if (!numberOfBalls) {
+            numberOfBalls = 1
+        }
 
         while (this.balls.length < numberOfBalls) {
             let r = Phaser.Math.Between

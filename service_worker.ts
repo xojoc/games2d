@@ -13,8 +13,6 @@ declare let filesToCache: { [key: string]: string[] }
 let CacheName = "games2d"
 
 self.addEventListener('install', (e) => {
-    self.skipWaiting()
-
     let files: string[] = [];
     for (let key in filesToCache) {
         files = files.concat(filesToCache[key])
@@ -31,6 +29,7 @@ self.addEventListener('install', (e) => {
             return cache.addAll(files)
         })
     )
+    // self.skipWaiting()
 })
 
 self.addEventListener('fetch', (e) => {
@@ -39,12 +38,13 @@ self.addEventListener('fetch', (e) => {
             console.log('[Service Worker] Fetching resource: ' + e.request.url)
             if (r) {
                 console.log("Resource is cached")
-                // Respond with cache, but send network request anyway to update resource
                 e.respondWith(Promise.resolve(r))
-                update(e.request)
+                //return r
+
+                // update(e.request)
             } else {
-                e.respondWith(fetch(e.request))
                 console.log("Resource not cached")
+                e.respondWith(fetch(e.request))
             }
         })
     })
@@ -60,3 +60,8 @@ function update(request: RequestInfo) {
         })
     })
 }
+/*
+self.addEventListener('activate', function(e) {
+    e.waitUntil(self.clients.claim());
+})
+*/

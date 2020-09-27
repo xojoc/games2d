@@ -8,7 +8,6 @@
 	<link rel="stylesheet" href="main.css" type="text/css">
 	<script type="module">
 	  if ('serviceWorker' in navigator) {
-
 		  let deferredPrompt
 		  let installButton = document.querySelector('#install-button')
 
@@ -33,7 +32,7 @@
 			  })
 		  }
 
-		  navigator.serviceWorker.register('service_worker.js?game_name=games2d')
+		  navigator.serviceWorker.register('service_worker.js')
       }
 	</script>
 	<script src="https://js.stripe.com/v3"></script>
