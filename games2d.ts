@@ -198,6 +198,7 @@ export namespace Games2d {
                 icon.setVisible(true)
                 icon.input.hitArea = new Phaser.Geom.Rectangle(10, 10, 80, 80)
                 icon.setScale(0.9)
+                icon.setScrollFactor(0, 0)
                 return icon
             }
 
@@ -222,6 +223,7 @@ export namespace Games2d {
                 .setAlpha(0.5)
                 .setFontStyle('bold')
                 .setOrigin(1, 0)
+                .setScrollFactor(0, 0)
 
             this.updateVolumeText()
 

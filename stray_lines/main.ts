@@ -381,12 +381,14 @@ class GameScene extends Phaser.Scene {
                     y: ScreenHeight / 2 + r(-offset, offset)
                 })
 
-            let ballBody = this.matter.add.circle(side.x, side.y, radius) as Matter.Body
+            let ballBody = this.matter.add.circle(side.x, side.y, radius)
 
             let v = new Phaser.Math.Vector2()
             v.setToPolar(angle, Phaser.Math.RND.realInRange(1.3, 1.8))
             this.time.delayedCall(this.balls.length * Phaser.Math.RND.integerInRange(2100, 2500), () => {
-                this.matter.add.velocity(ballBody, v)
+                //                ballBody.velocity = v
+                this.matter.setVelocity(ballBody, v.x, v.y)
+                // this.matter.add.velocity(ballBody, v)
             }, [], null)
 
             ballBody.friction = 0

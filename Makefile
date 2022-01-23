@@ -31,4 +31,4 @@ copy:
 	rm -rf dist/dist
 
 local:
-	cd dist; python3 -m http.server 8003&
+	ag -l | entr -r -s 'make compile; make copy; cd dist; python3 -m http.server 8003'

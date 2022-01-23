@@ -1,117 +1,117 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>games2d - Xojoc</title>
-    <meta name=viewport content="width=device-width, initial-scale=1">
+    <head>
+	<meta charset="utf-8">
+	<title>games2d - Xojoc</title>
+	<meta name=viewport content="width=device-width, initial-scale=1">
 	<link rel="manifest" href="manifest.webmanifest">
 	<link rel="stylesheet" href="main.css" type="text/css">
 	<script type="module">
-	  if ('serviceWorker' in navigator) {
-		  let deferredPrompt
-		  let installButton = document.querySelector('#install-button')
+	 if ('serviceWorker' in navigator) {
+	     let deferredPrompt
+	     let installButton = document.querySelector('#install-button')
 
-		  if (installButton) {
-			  installButton.parentNode.style.display = 'none'
+	     if (installButton) {
+		 installButton.parentNode.style.display = 'none'
 
-			  window.addEventListener('beforeinstallprompt', (e) => {
-				  let evt = e
-				  evt.preventDefault()
-				  deferredPrompt = evt
-				  installButton.parentNode.style.display = 'block'
-				  installButton.addEventListener('click', (_) => {
-					  installButton.parentNode.style.display = 'none'
-					  if (deferredPrompt) {
-						  deferredPrompt.prompt()
-						  deferredPrompt.userChoice.then((choiceResult) => {
-							  console.log(choiceResult)
-							  deferredPrompt = null;
-						  });
-					  }
-				  })
-			  })
-		  }
+		 window.addEventListener('beforeinstallprompt', (e) => {
+		     let evt = e
+		     evt.preventDefault()
+		     deferredPrompt = evt
+		     installButton.parentNode.style.display = 'block'
+		     installButton.addEventListener('click', (_) => {
+			 installButton.parentNode.style.display = 'none'
+			 if (deferredPrompt) {
+			     deferredPrompt.prompt()
+			     deferredPrompt.userChoice.then((choiceResult) => {
+				 console.log(choiceResult)
+				 deferredPrompt = null;
+			     });
+			 }
+		     })
+		 })
+	     }
 
-		  navigator.serviceWorker.register('service_worker.js')
-      }
+	     navigator.serviceWorker.register('service_worker.js')
+	 }
 	</script>
 	<script src="https://js.stripe.com/v3"></script>
-    <link rel="icon" href="assets/games2d_icon.png">
+	<link rel="icon" href="assets/games2d_icon.png">
 
 	<link
-	  rel="stylesheet"
-	  href="https://fonts.googleapis.com/css?family=Raleway&display=swap">
-  </head>
-  <body id=games2d>
-    <h1><span class=games2d_title_games>games</span><span class=games2d_title_2d>2d</span></h1>
+	    rel="stylesheet"
+	    href="https://fonts.googleapis.com/css?family=Raleway&display=swap">
+    </head>
+    <body id=games2d>
+	<h1><span class=games2d_title_games>games</span><span class=games2d_title_2d>2d</span></h1>
 	<p>A collection of <span class=games2d_title_2d>2d</span> <span class=games2d_title_games>games</span> for the web.</p>
-<div id="error-message"></div>
+	<div id="error-message"></div>
 	<div class="games">
-	  <div class="game"><a href="stray_lines/">Stray lines</a></div>
-	  <div class="game"><a href="4snakes/">4snakes</a></div>
-	  <div class="game"><a href="simon/">Simon</a></div>
-	  <div class="game">Enjoying the games? Support their development by donating!<br/><button id="checkout-link-G2D_STRIPE_SKU_2" class=buy>2€</button> <button id="checkout-link-G2D_STRIPE_SKU_5" class=buy>5€</button> <button id="checkout-link-G2D_STRIPE_SKU_10" class=buy>10€</button></div>
+	    <div class="game"><a href="stray_lines/">Stray lines</a></div>
+	    <div class="game"><a href="4snakes/">4snakes</a></div>
+	    <div class="game"><a href="simon/">Simon</a></div>
+	    <div class="game">Enjoying the games? Support their development by donating!<br/><button id="checkout-link-G2D_STRIPE_SKU_2" class=buy>2€</button> <button id="checkout-link-G2D_STRIPE_SKU_5" class=buy>5€</button> <button id="checkout-link-G2D_STRIPE_SKU_10" class=buy>10€</button></div>
 
-	  <div class="game">
+	    <div class="game">
 		<button id="install-button">Install</button>
 		<p class="install-description">Install the games on your device. When installed <b>games2d</b> provides more features like vibration and offline use (<a href="https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps">read more about PWAs</a>).</p>
-	  </div>
-</div>
+	    </div>
+	</div>
 	<p>Made by <a href="https://xojoc.pw" title="My website">Alexandru Cojocaru</a>.</p>
 	<p>Get the <a href="https://github.com/xojoc/games2d" title="games2d's source">source code</a>. See the <a href="https://github.com/xojoc/games2d/blob/master/CREDITS.md" title="Credits">CREDITS</a>.</p>
 
 
-		<script>
-(function() {
-	var stripe = Stripe('G2D_STRIPE_PUBLIC_KEY');
-  var checkoutLink2 = document.getElementById('checkout-link-G2D_STRIPE_SKU_2');
-  checkoutLink2.addEventListener('click', function () {
-    stripe.redirectToCheckout({
-		items: [{sku: 'G2D_STRIPE_SKU_2',
-				 quantity: 1}],
-      successUrl: 'https://xojoc.pw/games2d/thanks',
-      cancelUrl: 'https://xojoc.pw/games2d/',
-    })
-    .then(function (result) {
-      if (result.error) {
-        var displayError = document.getElementById('error-message');
-        displayError.textContent = result.error.message;
-      }
-    });
-  });
+	<script>
+	 (function() {
+	     var stripe = Stripe('G2D_STRIPE_PUBLIC_KEY');
+	     var checkoutLink2 = document.getElementById('checkout-link-G2D_STRIPE_SKU_2');
+	     checkoutLink2.addEventListener('click', function () {
+		 stripe.redirectToCheckout({
+		     items: [{sku: 'G2D_STRIPE_SKU_2',
+			      quantity: 1}],
+		     successUrl: 'https://xojoc.pw/games2d/thanks',
+		     cancelUrl: 'https://xojoc.pw/games2d/',
+		 })
+		       .then(function (result) {
+			   if (result.error) {
+			       var displayError = document.getElementById('error-message');
+			       displayError.textContent = result.error.message;
+			   }
+		       });
+	     });
 
-	  var checkoutLink5 = document.getElementById('checkout-link-G2D_STRIPE_SKU_5');
-  checkoutLink5.addEventListener('click', function () {
-    stripe.redirectToCheckout({
-		items: [{sku: 'G2D_STRIPE_SKU_5',
-				 quantity: 1}],
-      successUrl: 'https://xojoc.pw/games2d/thanks',
-      cancelUrl: 'https://xojoc.pw/games2d/',
-    })
-    .then(function (result) {
-      if (result.error) {
-        var displayError = document.getElementById('error-message');
-        displayError.textContent = result.error.message;
-      }
-    });
-  });
+	     var checkoutLink5 = document.getElementById('checkout-link-G2D_STRIPE_SKU_5');
+	     checkoutLink5.addEventListener('click', function () {
+		 stripe.redirectToCheckout({
+		     items: [{sku: 'G2D_STRIPE_SKU_5',
+			      quantity: 1}],
+		     successUrl: 'https://xojoc.pw/games2d/thanks',
+		     cancelUrl: 'https://xojoc.pw/games2d/',
+		 })
+		       .then(function (result) {
+			   if (result.error) {
+			       var displayError = document.getElementById('error-message');
+			       displayError.textContent = result.error.message;
+			   }
+		       });
+	     });
 
-  var checkoutLink10 = document.getElementById('checkout-link-G2D_STRIPE_SKU_10');
-  checkoutLink10.addEventListener('click', function () {
-    stripe.redirectToCheckout({
-		items: [{sku: 'G2D_STRIPE_SKU_10',
-				 quantity: 1}],
-      successUrl: 'https://xojoc.pw/games2d/thanks',
-      cancelUrl: 'https://xojoc.pw/games2d/',
-    })
-    .then(function (result) {
-      if (result.error) {
-        var displayError = document.getElementById('error-message');
-        displayError.textContent = result.error.message;
-      }
-    });
-  });
-})();
-</script>
-  </body>
+	     var checkoutLink10 = document.getElementById('checkout-link-G2D_STRIPE_SKU_10');
+	     checkoutLink10.addEventListener('click', function () {
+		 stripe.redirectToCheckout({
+		     items: [{sku: 'G2D_STRIPE_SKU_10',
+			      quantity: 1}],
+		     successUrl: 'https://xojoc.pw/games2d/thanks',
+		     cancelUrl: 'https://xojoc.pw/games2d/',
+		 })
+		       .then(function (result) {
+			   if (result.error) {
+			       var displayError = document.getElementById('error-message');
+			       displayError.textContent = result.error.message;
+			   }
+		       });
+	     });
+	 })();
+	</script>
+    </body>
 </html>
