@@ -31,6 +31,9 @@ class Game extends Phaser.Game {
                     debug: false,
                     debugShowBody: false,
                 },
+            },
+            input: {
+                activePointers: 3,
             }
         }
         super(config)
@@ -71,19 +74,20 @@ const Rt = Phaser.Geom.Rectangle
 class Square extends Phaser.GameObjects.Graphics {
     game_scene: GameScene
     r1: Phaser.GameObjects.Rectangle
-    deltay: number
-    squareTouchingGround: boolean
     keys: Phaser.Input.Keyboard.Key[]
     index: integer
     sign: integer
     emitter: Phaser.GameObjects.Particles.ParticleEmitter
     state: SquareState
     tween: Phaser.Tweens.Tween | undefined
+    scene: GameScene
 
-    readonly SIDE = 20
-    static jumpVelocityY = -100
-    static gravityVelocityY = 200
-    static velocityX = 150
+    readonly particleName: string
+
+    static SIDE = 17
+    static jumpVelocityY = -200
+    static gravityVelocityY = 500
+    static velocityX = 200
 
     constructor(scene: GameScene, index: integer) {
         super(scene, {})
@@ -92,34 +96,27 @@ class Square extends Phaser.GameObjects.Graphics {
         this.game_scene = scene
 
         this.index = index
-        this.squareTouchingGround = false
 
         this.state = SquareState.Running
 
-        let squarey = 0
         let keys = []
         if (index == 0) {
             this.sign = -1
-            this.deltay = -1
-            squarey = this.SIDE * 10
             keys = ['a', 'left']
         } else {
             this.sign = 1
-            this.deltay = 1
-            squarey = ScreenHeight - this.SIDE * 7
             keys = ['d', 'right']
         }
+
+        let squarey = this.scene.grounds[this.index].ypos - Square.SIDE * 5 * this.sign
 
         this.keys = []
         for (let key of keys) {
             this.keys.push(this.scene.input.keyboard.addKey(key))
         }
 
-        this.deltay *= 100
-
-
-        this.r1 = scene.add.rectangle(this.SIDE * 3, squarey,
-            this.SIDE, this.SIDE,
+        this.r1 = scene.add.rectangle(Square.SIDE * 3, squarey,
+            Square.SIDE, Square.SIDE,
             colors[index])
         this.scene.physics.add.existing(this.r1)
         let body = this.r1.body as Phaser.Physics.Arcade.Body
@@ -127,29 +124,51 @@ class Square extends Phaser.GameObjects.Graphics {
         body.setGravityY(Square.gravityVelocityY * this.sign)
         //        body.setBounce(0, 0.1)
 
-        let particleName = `particle-${this.index}`
-        if (!this.scene.textures.exists(particleName)) {
-            let particleSide = 7
-            let canvas = this.scene.textures.createCanvas(particleName,
+        this.particleName = `particle-${this.index}`
+        if (!this.scene.textures.exists(this.particleName)) {
+            let particleSide = 4
+            let canvas = this.scene.textures.createCanvas(this.particleName,
                 particleSide, particleSide)
 
-            canvas.context.fillStyle = `#${colors[this.index].toString(16).toUpperCase()}`
+            // canvas.context.fillStyle = `#${colors[this.index].toString(16).toUpperCase()}`
+            canvas.context.fillStyle = `#83A9FF`
+
             canvas.context.fillRect(0, 0,
                 particleSide, particleSide)
 
             canvas.refresh()
         }
-        let particles = this.scene.add.particles(particleName)
+        let particles = this.scene.add.particles(this.particleName)
         this.emitter = particles.createEmitter({
+            // frequency: 10000,
+            quantity: 3,
             speed: 50,
             follow: this.r1,
-            followOffset: { x: 0, y: this.SIDE / 2 * 0.80 * this.sign },
+            followOffset: { x: -Square.SIDE / 2, y: Square.SIDE / 2 * 0.80 * this.sign },
+            // followOffset: { x: 0, y: Square.SIDE * this.sign },
             on: false,
-            angle: { min: 150 * this.sign, max: 200 * this.sign },
+            angle: { min: 100 * this.sign, max: 250 * this.sign },
             scale: { start: 0.7, end: 1 },
             alpha: { start: 1, end: 0 },
-            lifespan: 500,
+            lifespan: 100,
         })
+    }
+
+    explode() {
+        let particles = this.scene.add.particles(this.particleName)
+        particles.createEmitter({
+            quantity: 150,
+            x: this.r1.x + this.r1.width / 2,
+            y: this.r1.y - this.r1.height / 2 * this.sign,
+            speed: { min: -100, max: 100 },
+            angle: { min: 0, max: 360 },
+            scale: { start: 1, end: 0 },
+            blendMode: 'SCREEN',
+            lifespan: 500,
+            gravityY: 150 * this.sign,
+        })
+        this.emitter.stop()
+        this.r1.destroy()
     }
 
     userJumped() {
@@ -158,13 +177,21 @@ class Square extends Phaser.GameObjects.Graphics {
                 return true
             }
         }
-        let p = this.scene.input.activePointer
-        if (p.isDown && p.y > 70) {
-            if (this.index == 0 && p.x < ScreenWidth / 2) {
-                return true
-            }
-            if (this.index == 1 && p.x > ScreenWidth / 2) {
-                return true
+
+        let pointers = []
+        if (this.scene.sys.game.device.input.touch) {
+            pointers = [this.scene.input.pointer1, this.scene.input.pointer2]
+        } else {
+            pointers = [this.scene.input.activePointer]
+        }
+        for (let p of pointers) {
+            if (p.isDown && p.y > 70) {
+                if (this.index == 0 && p.x < ScreenWidth / 2) {
+                    return true
+                }
+                if (this.index == 1 && p.x > ScreenWidth / 2) {
+                    return true
+                }
             }
         }
         return false
@@ -206,7 +233,7 @@ class Square extends Phaser.GameObjects.Graphics {
             }
         }
         if (this.index == 1) {
-            if (this.r1.y + this.SIDE > ScreenHeight) {
+            if (this.r1.y + Square.SIDE > ScreenHeight) {
                 this.game_scene.gameOver()
             }
         }
@@ -234,33 +261,48 @@ class Square extends Phaser.GameObjects.Graphics {
         this.setVisible(true)
     }
 
+    static jumpTimeAt(h: number) {
+        let vy = this.jumpVelocityY
+        let g = this.gravityVelocityY
+
+        let t1 = vy / g + Math.sqrt((vy ** 2 / g ** 2) - 2 * h / g)
+        t1 = Math.abs(t1)
+        let t2 = vy / g - Math.sqrt((vy ** 2 / g ** 2) - 2 * h / g)
+        t2 = Math.abs(t2)
+        return [t1, t2]
+    }
+
     static jumpTime() {
         return Math.abs((this.jumpVelocityY * 2) / this.gravityVelocityY)
     }
 
-    static jumpDistanceX() {
-        return this.velocityX * this.jumpTime()
+    static jumpDistanceX(t?: number | undefined) {
+        if (!t) {
+            t = this.jumpTime()
+        }
+        return this.velocityX * t
     }
 
-    static jumpDistanceY() {
-        let t = this.jumpTime() / 2
-        return this.jumpVelocityY * t + this.gravityVelocityY * t ** 2 / 2
+    static jumpHeight() {
+        return (this.jumpVelocityY ** 2) / (2 * this.gravityVelocityY)
     }
 }
 
 
 class Ground extends Phaser.GameObjects.Graphics {
-    rects: Phaser.GameObjects.Rectangle[]
-    rect_i: integer
+    rects: Phaser.GameObjects.Rectangle[] = []
+    currentX: number = 0
+    previousWasGap = false
     game_scene: GameScene
     ypos: number
     ground: Phaser.Physics.Arcade.Group
     index: integer
     sign: integer
+    scene: GameScene
 
+    static rumpLengths = Array(100).fill(2, 0, 50).fill(3, 30, 80).fill(4, 80, 100)
 
-    readonly WIDTH
-    readonly HEIGHT = 20
+    readonly HEIGHT = 5
 
     constructor(scene: GameScene, index: integer) {
         super(scene, {})
@@ -270,54 +312,36 @@ class Ground extends Phaser.GameObjects.Graphics {
 
         this.index = index
 
-        this.WIDTH = Square.jumpDistanceX() * 0.5
-
         if (index == 0) {
-            this.ypos = this.HEIGHT * 7
+            this.ypos = 300
             this.sign = -1
         } else {
-            this.ypos = ScreenHeight - this.HEIGHT * 3
+            this.ypos = ScreenHeight - 300
             this.sign = 1
         }
 
-        this.ground = this.scene.physics.add.group()
+        this.ground = this.scene.physics.add.group({
+            classType: Phaser.GameObjects.Rectangle,
+        })
 
-        this.rect_i = 0
-        this.rects = []
-
-        for (let i = 0; i < 1000; i++) {
-            let ypos = this.ypos
-            /*
-            if ((i + 1) % 5 == 0) {
-                ypos += Square.jumpDistanceY() * this.sign * 0.8
-            }
-
-            if ((i + 1) % 8 == 0) {
-                continue
-            }
-            */
-            this.rects.push(scene.add.rectangle(i * this.WIDTH,
-                ypos,
-                this.WIDTH, this.HEIGHT,
-                colors[index]))
-
-            this.ground.add(this.rects[this.rect_i])
-
-            let body = this.rects[this.rect_i].body as Phaser.Physics.Arcade.Body
-            body.setImmovable(true)
-            body.allowGravity = false
-
-            this.rect_i += 1
-        }
+        this.generateNewGround()
     }
 
     update() {
         for (let r of this.rects) {
+            let body = r.body as Phaser.Physics.Arcade.Body
             let p = this.game_scene.getRelativePosition(r)
-            if (r.y == this.ypos) {
-                let body = r.body as Phaser.Physics.Arcade.Body
-                if (p.x + r.width <= this.WIDTH * 1) {
-                    let y = 40
+            if (p.x < 0) {
+                r.destroy()
+                continue
+            }
+
+
+            let sqp = this.game_scene.getRelativePosition(this.game_scene.squares[0].r1)
+            if (p.x + r.width < sqp.x) {
+                let tweens = this.scene.tweens.getTweensOf(r, true)
+                if (tweens.length == 0) {
+                    let y = 150
                     if (this.index == 0) {
                         y *= -1
                     }
@@ -326,36 +350,108 @@ class Ground extends Phaser.GameObjects.Graphics {
                     this.scene.tweens.add({
                         targets: r,
                         alpha: 0,
-                        duration: 2000,
-                        delay: 100,
-                        ease: 'Power1'
+                        duration: 900,
+                        delay: 0,
+                        // ease: 'BackOut'
+                        ease: Phaser.Math.Easing.Cubic.Out,
                     })
-                    let angle = 90
+                    let angle = 45
                     if (this.index == 1) {
                         angle *= -1
                     }
                     this.scene.tweens.add({
                         targets: r,
                         angle: angle,
-                        duration: 3000,
+                        duration: 400,
                         delay: 100,
                         ease: 'Exponential'
                     })
                 }
             }
-            if (p.x + this.WIDTH < 0) {
-                r.destroy()
-                r.active
-                this.rects.shift()
-            }
         }
+
+        this.rects = this.rects.filter(r => r.active)
+
+        this.generateNewGround()
     }
 
     render() {
         this.setVisible(true)
     }
-}
 
+    generateNewGround() {
+        while (true) {
+            let lastRect = undefined
+            let lastRectPos = undefined
+            if (this.rects.length > 0) {
+                lastRect = this.rects[this.rects.length - 1]
+                lastRectPos = this.game_scene.getRelativePosition(lastRect)
+            }
+
+            if (lastRect && lastRectPos && lastRectPos.x > ScreenWidth) {
+                break
+            }
+
+            // if (this.index == 1) {
+            if (!this.previousWasGap && this.currentX > ScreenWidth) {
+                if (Phaser.Math.Between(1, 60) == 1) {
+                    let w = Square.jumpDistanceX() * 0.7
+                    this.currentX += w
+                    this.previousWasGap = true
+                    continue
+                }
+            }
+            // }
+
+            let width = Square.SIDE * 1.3
+
+            let rumpLength = 1
+            if (this.index == 1) {
+                if (!this.previousWasGap &&
+                    Phaser.Math.Between(1, 25) == 1 &&
+                    this.currentX > ScreenWidth / 2) {
+                    rumpLength = Ground.rumpLengths[Phaser.Math.Between(0, Ground.rumpLengths.length - 1)]
+                }
+            }
+
+            let yRatio = 0.8
+            for (let i = 0; i < rumpLength; i++) {
+                let deltaY = Square.jumpHeight() * yRatio * i * this.sign
+
+                if (i > 0) {
+                    let t = Square.jumpTimeAt(Square.jumpHeight() * yRatio)[1]
+                    let deltaX = Square.jumpDistanceX(t) - width
+
+                    if (deltaX > 0) {
+                        this.currentX += deltaX
+                    }
+                }
+                let ypos = this.ypos - deltaY
+
+                let r = this.scene.add.rectangle(this.currentX, ypos,
+                    width, this.HEIGHT,
+                    colors[this.index])
+
+                this.rects.push(r)
+                this.ground.add(r)
+                let body = r.body as Phaser.Physics.Arcade.Body
+                body.setImmovable(true)
+                body.allowGravity = false
+
+                this.currentX += r.width
+            }
+
+            if (rumpLength > 1) {
+                let t = Square.jumpTimeAt(Square.jumpHeight() * (rumpLength - 1))[1] / 2
+                let deltaX = Square.jumpDistanceX(t) / 2 + Square.SIDE * 2
+                this.currentX += deltaX
+                this.previousWasGap = true
+            } else {
+                this.previousWasGap = false
+            }
+        }
+    }
+}
 
 class Obstacles extends Phaser.GameObjects.Graphics {
     game_scene: GameScene
@@ -452,8 +548,11 @@ class GameScene extends Phaser.Scene {
         }
     }
 
-    increaseScore(s: number = 1) {
-        this.score += s
+    setScore(s: number) {
+        if (s == this.score) {
+            return
+        }
+        this.score = s
         if (this.score > this.highestScore) {
             this.highestScore = this.score
             this.saveData()
@@ -497,6 +596,8 @@ class GameScene extends Phaser.Scene {
 
         this.frameLag = 0
 
+        // this.input.addPointer(1)
+
         this.menu = new Games2d.Menu({ scene: this })
 
         this.sound.pauseOnBlur = false
@@ -523,7 +624,7 @@ class GameScene extends Phaser.Scene {
 
         this.grounds = [new Ground(this, 0), new Ground(this, 1)]
         this.squares = [new Square(this, 0), new Square(this, 1)]
-        this.obstacles = [new Obstacles(this, 0), new Obstacles(this, 1)]
+        // this.obstacles = [new Obstacles(this, 0), new Obstacles(this, 1)]
 
         this.physics.add.collider(this.squares[0].r1,
             this.grounds[0].ground,
@@ -532,6 +633,7 @@ class GameScene extends Phaser.Scene {
             })
         this.physics.add.collider(this.squares[1].r1, this.grounds[1].ground)
 
+        /*
         this.physics.add.collider(this.squares[0].r1,
             this.obstacles[0].triangles)
         this.physics.add.collider(this.squares[1].r1,
@@ -541,10 +643,14 @@ class GameScene extends Phaser.Scene {
             this.obstacles[0].triangles)
         this.physics.add.collider(this.grounds[1].ground,
             this.obstacles[1].triangles)
+            */
+
 
         this.cameras.main.startFollow(this.squares[1].r1, false, 1, 0)
         this.cameras.main.followOffset.set(-300, 0)
-        this.cameras.main.scrollY -= 300
+        this.cameras.main.scrollY = 0
+        //        this.cameras.main.scrollY = this.grounds[1].ypos
+        // this.squares[1].r1.y / 2 + Square.SIDE / 2
     }
 
     gameOver() {
@@ -556,7 +662,11 @@ class GameScene extends Phaser.Scene {
         }
         this.state = GameState.GameOver
 
-        this.cameras.main.flash(100, 100)
+        for (let square of this.squares) {
+            square.explode()
+        }
+
+        // this.cameras.main.flash(100, 100)
         this.cameras.main.fade(this.gameOverDuration * 2 / 3)
         this.time.delayedCall(this.gameOverDuration,
             () => {
@@ -585,9 +695,12 @@ class GameScene extends Phaser.Scene {
         for (let ground of this.grounds) {
             ground.update()
         }
+        this.setScore(Math.round(this.squares[0].r1.x / 1000))
+        /*
         for (let obstacles of this.obstacles) {
             obstacles.update()
         }
+        */
     }
     getRelativePosition(gameObject: Phaser.GameObjects.Shape) {
         let camera = this.cameras.main
@@ -610,6 +723,5 @@ globalThis.ground = Ground
 globalThis.obstacles = Obstacles
 
 window.onload = () => {
-    console.log(this)
     globalThis.game = new Game()
 }
