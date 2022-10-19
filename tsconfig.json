@@ -18,7 +18,7 @@
 		"preserveConstEnums": true,
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
-		"sourceMap": true
+		"sourceMap": false
 	},
 	"exclude": [
 		"dist",

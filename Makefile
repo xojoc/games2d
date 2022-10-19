@@ -24,13 +24,14 @@ copy:
 	cp -a assets dist
 	cp -a --parents */assets dist
 	cp -a --parents */*.html dist
-	cp -a --parents */*.ts dist
+	# cp -a --parents */*.ts dist
 	cp -a --parents */*.js dist
 	cp -r phaser* dist
 	cp -a --parents */*.webmanifest dist
 	rm -rf dist/dist
 
-local:
-	tsc --watch&
-	cd dist; python3 -m http.server 8003
+local: compile copy
+	-kill $$(lsof -ti :8003)
+	cd dist; python3 -m http.server 8003&
+	tsc --watch
 	# ag -l | entr -r -s 'make compile; make copy; cd dist; python3 -m http.server 8003'

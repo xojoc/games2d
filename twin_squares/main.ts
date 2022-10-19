@@ -686,13 +686,19 @@ class GameScene extends Phaser.Scene {
         }
     }
     updateFrame() {
-        if (this.state == GameState.GameOver) {
-            return
-        }
+        // if (this.state == GameState.GameOver) {
+        //     return
+        // }
         for (let square of this.squares) {
+            if (this.state == GameState.GameOver) {
+                return
+            }
             square.update()
         }
         for (let ground of this.grounds) {
+            if (this.state == GameState.GameOver) {
+                return
+            }
             ground.update()
         }
         this.setScore(Math.round(this.squares[0].r1.x / 1000))
